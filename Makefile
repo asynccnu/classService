@@ -15,6 +15,22 @@ else
 	API_PROTO_FILES=$(shell find api -name *.proto)
 endif
 
+.PHONY: errors
+errors:
+	protoc --proto_path=. \
+         --proto_path=./third_party \
+         --go_out=paths=source_relative:. \
+         --go-errors_out=paths=source_relative:. \
+         $(API_PROTO_FILES)
+
+
+.PHONY: service
+# service
+service:
+	kratos proto server api/classService/v1/classService.proto -t internal/service
+
+
+
 .PHONY: init
 # init env
 init:
@@ -44,6 +60,15 @@ api:
 	       --openapi_out=fq_schema_naming=true,default_response=false:. \
 	       $(API_PROTO_FILES)
 
+.PHONY: validate
+# generate validate proto
+validate:
+	protoc --proto_path=. \
+           --proto_path=./third_party \
+           --go_out=paths=source_relative:. \
+           --validate_out=paths=source_relative,lang=go:. \
+           $(API_PROTO_FILES)
+
 .PHONY: build
 # build
 build:
@@ -52,8 +77,26 @@ build:
 .PHONY: generate
 # generate
 generate:
-	go generate ./...
 	go mod tidy
+	go get github.com/google/wire/cmd/wire@latest
+	go generate ./...
+
+.PHONY: docker
+# docker
+docker:
+	cd ./deploy && docker-compose up -d
+
+.PHONY: stop
+# stop
+stop:
+	cd ./deploy && docker-compose down
+
+
+
+.PHONY: run
+# run
+run:
+	kratos run
 
 .PHONY: all
 # generate all

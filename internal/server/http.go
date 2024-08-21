@@ -1,9 +1,12 @@
 package server
 
 import (
-	v1 "classService/api/helloworld/v1"
+	v1 "classService/api/classService/v1"
 	"classService/internal/conf"
+	"classService/internal/metrics"
+	"classService/internal/pkg/encoder"
 	"classService/internal/service"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -11,11 +14,15 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.ClassServiceService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			validate.Validator(),
+			metrics.QPSMiddleware(),
+			metrics.DelayMiddleware(),
 		),
+		http.ResponseEncoder(encoder.RespEncoder), // Notice: 将响应格式化
 	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
@@ -27,6 +34,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	v1.RegisterGreeterHTTPServer(srv, greeter)
+	v1.RegisterClassServiceHTTPServer(srv, greeter)
 	return srv
 }

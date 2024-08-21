@@ -1,9 +1,11 @@
 package server
 
 import (
-	v1 "classService/api/helloworld/v1"
+	v1 "classService/api/classService/v1"
 	"classService/internal/conf"
+	"classService/internal/metrics"
 	"classService/internal/service"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -11,10 +13,13 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, greeter *service.ClassServiceService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			validate.Validator(),
+			metrics.QPSMiddleware(),
+			metrics.DelayMiddleware(),
 		),
 	}
 	if c.Grpc.Network != "" {
@@ -27,6 +32,6 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	v1.RegisterGreeterServer(srv, greeter)
+	v1.RegisterClassServiceServer(srv, greeter)
 	return srv
 }

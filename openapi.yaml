@@ -3,19 +3,54 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
+    title: ClassService API
     description: The greeting service definition.
     version: 0.0.1
 paths:
-    /helloworld/{name}:
+    /classService/addByHand:
+        post:
+            tags:
+                - ClassService
+            operationId: ClassService_AddClassByHand
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/classService.v1.AddClassByHandRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/classService.v1.AddClassByHandReply'
+    /classService/addBySearch:
+        post:
+            tags:
+                - ClassService
+            operationId: ClassService_AddClassBySearch
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/classService.v1.AddClassBySearchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/classService.v1.AddClassBySearchReply'
+    /classService/search/{searchKeyWords}:
         get:
             tags:
-                - Greeter
-                - subgroup
+                - ClassService
             description: Sends a greeting
-            operationId: Greeter_SayHello
+            operationId: ClassService_SearchClass
             parameters:
-                - name: name
+                - name: searchKeyWords
                   in: path
                   required: true
                   schema:
@@ -26,14 +61,86 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+                                $ref: '#/components/schemas/classService.v1.SearchReply'
 components:
     schemas:
-        helloworld.v1.HelloReply:
+        classService.v1.AddClassByHandReply:
             type: object
             properties:
-                message:
+                id:
                     type: string
+                msg:
+                    type: string
+        classService.v1.AddClassByHandRequest:
+            type: object
+            properties:
+                stuId:
+                    type: string
+                name:
+                    type: string
+                durClass:
+                    type: string
+                where:
+                    type: string
+                teacher:
+                    type: string
+                weeks:
+                    type: string
+                semester:
+                    type: string
+                year:
+                    type: string
+                day:
+                    type: string
+                credit:
+                    type: number
+                    format: double
+        classService.v1.AddClassBySearchReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                msg:
+                    type: string
+        classService.v1.AddClassBySearchRequest:
+            type: object
+            properties:
+                classInfo:
+                    $ref: '#/components/schemas/classService.v1.ClassInfo'
+        classService.v1.ClassInfo:
+            type: object
+            properties:
+                day:
+                    type: string
+                teacher:
+                    type: string
+                where:
+                    type: string
+                classWhen:
+                    type: string
+                weekDuration:
+                    type: string
+                classname:
+                    type: string
+                credit:
+                    type: number
+                    format: double
+                weeks:
+                    type: string
+                    description: bool add=8;//是否为手动添加
+                semester:
+                    type: string
+                year:
+                    type: string
+                id:
+                    type: string
+        classService.v1.SearchReply:
+            type: object
+            properties:
+                classInfos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/classService.v1.ClassInfo'
             description: The response message containing the greetings
 tags:
-    - name: Greeter
+    - name: ClassService
