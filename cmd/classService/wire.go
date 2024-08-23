@@ -9,6 +9,8 @@ import (
 	"classService/internal/biz"
 	"classService/internal/conf"
 	"classService/internal/data"
+	"classService/internal/pkg/timedTask"
+	"classService/internal/registry"
 	"classService/internal/server"
 	"classService/internal/service"
 
@@ -18,6 +20,14 @@ import (
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, func(), error) {
-	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+func wireApp(*conf.Server, *conf.Data, *conf.Registry, log.Logger) (*kratos.App, *timedTask.Task, func(), error) {
+	panic(wire.Build(server.ProviderSet,
+		data.ProviderSet,
+		biz.ProviderSet,
+		service.ProviderSet,
+		registry.ProviderSet,
+		timedTask.ProviderSet,
+		wire.Bind(new(biz.EsProxy), new(*data.Data)),
+		wire.Bind(new(timedTask.AddClassInfoToEs), new(*biz.ClassSerivceUserCase)),
+		newApp))
 }

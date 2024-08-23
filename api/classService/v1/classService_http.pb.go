@@ -19,13 +19,11 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationClassServiceAddClassByHand = "/classService.v1.ClassService/AddClassByHand"
-const OperationClassServiceAddClassBySearch = "/classService.v1.ClassService/AddClassBySearch"
+const OperationClassServiceAddClass = "/classService.v1.ClassService/AddClass"
 const OperationClassServiceSearchClass = "/classService.v1.ClassService/SearchClass"
 
 type ClassServiceHTTPServer interface {
-	AddClassByHand(context.Context, *AddClassByHandRequest) (*AddClassByHandReply, error)
-	AddClassBySearch(context.Context, *AddClassBySearchRequest) (*AddClassBySearchReply, error)
+	AddClass(context.Context, *AddClassRequest) (*AddClassReply, error)
 	// SearchClass Sends a greeting
 	SearchClass(context.Context, *SearchRequest) (*SearchReply, error)
 }
@@ -33,8 +31,7 @@ type ClassServiceHTTPServer interface {
 func RegisterClassServiceHTTPServer(s *http.Server, srv ClassServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/classService/search/{searchKeyWords}", _ClassService_SearchClass0_HTTP_Handler(srv))
-	r.POST("/classService/addByHand", _ClassService_AddClassByHand0_HTTP_Handler(srv))
-	r.POST("/classService/addBySearch", _ClassService_AddClassBySearch0_HTTP_Handler(srv))
+	r.POST("/classService/addByHand", _ClassService_AddClass0_HTTP_Handler(srv))
 }
 
 func _ClassService_SearchClass0_HTTP_Handler(srv ClassServiceHTTPServer) func(ctx http.Context) error {
@@ -59,53 +56,30 @@ func _ClassService_SearchClass0_HTTP_Handler(srv ClassServiceHTTPServer) func(ct
 	}
 }
 
-func _ClassService_AddClassByHand0_HTTP_Handler(srv ClassServiceHTTPServer) func(ctx http.Context) error {
+func _ClassService_AddClass0_HTTP_Handler(srv ClassServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in AddClassByHandRequest
+		var in AddClassRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationClassServiceAddClassByHand)
+		http.SetOperation(ctx, OperationClassServiceAddClass)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.AddClassByHand(ctx, req.(*AddClassByHandRequest))
+			return srv.AddClass(ctx, req.(*AddClassRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*AddClassByHandReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ClassService_AddClassBySearch0_HTTP_Handler(srv ClassServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in AddClassBySearchRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationClassServiceAddClassBySearch)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.AddClassBySearch(ctx, req.(*AddClassBySearchRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*AddClassBySearchReply)
+		reply := out.(*AddClassReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type ClassServiceHTTPClient interface {
-	AddClassByHand(ctx context.Context, req *AddClassByHandRequest, opts ...http.CallOption) (rsp *AddClassByHandReply, err error)
-	AddClassBySearch(ctx context.Context, req *AddClassBySearchRequest, opts ...http.CallOption) (rsp *AddClassBySearchReply, err error)
+	AddClass(ctx context.Context, req *AddClassRequest, opts ...http.CallOption) (rsp *AddClassReply, err error)
 	SearchClass(ctx context.Context, req *SearchRequest, opts ...http.CallOption) (rsp *SearchReply, err error)
 }
 
@@ -117,24 +91,11 @@ func NewClassServiceHTTPClient(client *http.Client) ClassServiceHTTPClient {
 	return &ClassServiceHTTPClientImpl{client}
 }
 
-func (c *ClassServiceHTTPClientImpl) AddClassByHand(ctx context.Context, in *AddClassByHandRequest, opts ...http.CallOption) (*AddClassByHandReply, error) {
-	var out AddClassByHandReply
+func (c *ClassServiceHTTPClientImpl) AddClass(ctx context.Context, in *AddClassRequest, opts ...http.CallOption) (*AddClassReply, error) {
+	var out AddClassReply
 	pattern := "/classService/addByHand"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationClassServiceAddClassByHand))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *ClassServiceHTTPClientImpl) AddClassBySearch(ctx context.Context, in *AddClassBySearchRequest, opts ...http.CallOption) (*AddClassBySearchReply, error) {
-	var out AddClassBySearchReply
-	pattern := "/classService/addBySearch"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationClassServiceAddClassBySearch))
+	opts = append(opts, http.Operation(OperationClassServiceAddClass))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

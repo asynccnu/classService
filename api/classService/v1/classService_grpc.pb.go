@@ -19,9 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ClassService_SearchClass_FullMethodName      = "/classService.v1.ClassService/SearchClass"
-	ClassService_AddClassByHand_FullMethodName   = "/classService.v1.ClassService/AddClassByHand"
-	ClassService_AddClassBySearch_FullMethodName = "/classService.v1.ClassService/AddClassBySearch"
+	ClassService_SearchClass_FullMethodName = "/classService.v1.ClassService/SearchClass"
+	ClassService_AddClass_FullMethodName    = "/classService.v1.ClassService/AddClass"
 )
 
 // ClassServiceClient is the client API for ClassService service.
@@ -32,8 +31,7 @@ const (
 type ClassServiceClient interface {
 	// Sends a greeting
 	SearchClass(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchReply, error)
-	AddClassByHand(ctx context.Context, in *AddClassByHandRequest, opts ...grpc.CallOption) (*AddClassByHandReply, error)
-	AddClassBySearch(ctx context.Context, in *AddClassBySearchRequest, opts ...grpc.CallOption) (*AddClassBySearchReply, error)
+	AddClass(ctx context.Context, in *AddClassRequest, opts ...grpc.CallOption) (*AddClassReply, error)
 }
 
 type classServiceClient struct {
@@ -54,20 +52,10 @@ func (c *classServiceClient) SearchClass(ctx context.Context, in *SearchRequest,
 	return out, nil
 }
 
-func (c *classServiceClient) AddClassByHand(ctx context.Context, in *AddClassByHandRequest, opts ...grpc.CallOption) (*AddClassByHandReply, error) {
+func (c *classServiceClient) AddClass(ctx context.Context, in *AddClassRequest, opts ...grpc.CallOption) (*AddClassReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AddClassByHandReply)
-	err := c.cc.Invoke(ctx, ClassService_AddClassByHand_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *classServiceClient) AddClassBySearch(ctx context.Context, in *AddClassBySearchRequest, opts ...grpc.CallOption) (*AddClassBySearchReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AddClassBySearchReply)
-	err := c.cc.Invoke(ctx, ClassService_AddClassBySearch_FullMethodName, in, out, cOpts...)
+	out := new(AddClassReply)
+	err := c.cc.Invoke(ctx, ClassService_AddClass_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +70,7 @@ func (c *classServiceClient) AddClassBySearch(ctx context.Context, in *AddClassB
 type ClassServiceServer interface {
 	// Sends a greeting
 	SearchClass(context.Context, *SearchRequest) (*SearchReply, error)
-	AddClassByHand(context.Context, *AddClassByHandRequest) (*AddClassByHandReply, error)
-	AddClassBySearch(context.Context, *AddClassBySearchRequest) (*AddClassBySearchReply, error)
+	AddClass(context.Context, *AddClassRequest) (*AddClassReply, error)
 	mustEmbedUnimplementedClassServiceServer()
 }
 
@@ -97,11 +84,8 @@ type UnimplementedClassServiceServer struct{}
 func (UnimplementedClassServiceServer) SearchClass(context.Context, *SearchRequest) (*SearchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchClass not implemented")
 }
-func (UnimplementedClassServiceServer) AddClassByHand(context.Context, *AddClassByHandRequest) (*AddClassByHandReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddClassByHand not implemented")
-}
-func (UnimplementedClassServiceServer) AddClassBySearch(context.Context, *AddClassBySearchRequest) (*AddClassBySearchReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddClassBySearch not implemented")
+func (UnimplementedClassServiceServer) AddClass(context.Context, *AddClassRequest) (*AddClassReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddClass not implemented")
 }
 func (UnimplementedClassServiceServer) mustEmbedUnimplementedClassServiceServer() {}
 func (UnimplementedClassServiceServer) testEmbeddedByValue()                      {}
@@ -142,38 +126,20 @@ func _ClassService_SearchClass_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ClassService_AddClassByHand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddClassByHandRequest)
+func _ClassService_AddClass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddClassRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ClassServiceServer).AddClassByHand(ctx, in)
+		return srv.(ClassServiceServer).AddClass(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ClassService_AddClassByHand_FullMethodName,
+		FullMethod: ClassService_AddClass_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClassServiceServer).AddClassByHand(ctx, req.(*AddClassByHandRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ClassService_AddClassBySearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddClassBySearchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ClassServiceServer).AddClassBySearch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ClassService_AddClassBySearch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClassServiceServer).AddClassBySearch(ctx, req.(*AddClassBySearchRequest))
+		return srv.(ClassServiceServer).AddClass(ctx, req.(*AddClassRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -190,12 +156,8 @@ var ClassService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ClassService_SearchClass_Handler,
 		},
 		{
-			MethodName: "AddClassByHand",
-			Handler:    _ClassService_AddClassByHand_Handler,
-		},
-		{
-			MethodName: "AddClassBySearch",
-			Handler:    _ClassService_AddClassBySearch_Handler,
+			MethodName: "AddClass",
+			Handler:    _ClassService_AddClass_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -16,20 +16,12 @@ service ClassService {
     };
   }
 
-  rpc AddClassByHand (AddClassByHandRequest) returns (AddClassByHandReply) {
+  rpc AddClass (AddClassRequest) returns (AddClassReply) {
       option (google.api.http) = {
         post: "/classService/addByHand"
         body: "*"
       };
-
   }
-  rpc AddClassBySearch (AddClassBySearchRequest) returns (AddClassBySearchReply) {
-      option (google.api.http) = {
-          post: "/classService/addBySearch"
-          body: "*"
-      };
-  }
-
 }
 
 // The request message containing the user's name.
@@ -41,7 +33,7 @@ message SearchRequest {
 message SearchReply {
   repeated ClassInfo class_infos = 1;
 }
-message AddClassByHandRequest {
+message AddClassRequest {
     string stu_id=1 [(validate.rules).string = {min_len: 10, max_len: 10}];//学号
     string name=2 [(validate.rules).string = {min_len: 1}];//课程名称
     string dur_class=3 [(validate.rules).string = {min_len: 1}];//第几节 '形如 "1-3","1-1"'
@@ -53,14 +45,7 @@ message AddClassByHandRequest {
     int64 day=9 [(validate.rules).int64 = {gte: 1, lte: 7}];//星期几
     double credit=10; //学分
 }
-message AddClassByHandReply {
-    string id=1; //添加的课程ID
-    string msg=2;
-}
-message AddClassBySearchRequest {
-    ClassInfo class_info = 1;
-}
-message AddClassBySearchReply {
+message AddClassReply {
     string id=1; //添加的课程ID
     string msg=2;
 }

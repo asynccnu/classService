@@ -11,12 +11,12 @@ paths:
         post:
             tags:
                 - ClassService
-            operationId: ClassService_AddClassByHand
+            operationId: ClassService_AddClass
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/classService.v1.AddClassByHandRequest'
+                            $ref: '#/components/schemas/classService.v1.AddClassRequest'
                 required: true
             responses:
                 "200":
@@ -24,25 +24,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/classService.v1.AddClassByHandReply'
-    /classService/addBySearch:
-        post:
-            tags:
-                - ClassService
-            operationId: ClassService_AddClassBySearch
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/classService.v1.AddClassBySearchRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/classService.v1.AddClassBySearchReply'
+                                $ref: '#/components/schemas/classService.v1.AddClassReply'
     /classService/search/{searchKeyWords}:
         get:
             tags:
@@ -64,14 +46,14 @@ paths:
                                 $ref: '#/components/schemas/classService.v1.SearchReply'
 components:
     schemas:
-        classService.v1.AddClassByHandReply:
+        classService.v1.AddClassReply:
             type: object
             properties:
                 id:
                     type: string
                 msg:
                     type: string
-        classService.v1.AddClassByHandRequest:
+        classService.v1.AddClassRequest:
             type: object
             properties:
                 stuId:
@@ -95,18 +77,6 @@ components:
                 credit:
                     type: number
                     format: double
-        classService.v1.AddClassBySearchReply:
-            type: object
-            properties:
-                id:
-                    type: string
-                msg:
-                    type: string
-        classService.v1.AddClassBySearchRequest:
-            type: object
-            properties:
-                classInfo:
-                    $ref: '#/components/schemas/classService.v1.ClassInfo'
         classService.v1.ClassInfo:
             type: object
             properties:

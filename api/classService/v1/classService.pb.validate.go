@@ -270,22 +270,22 @@ var _ interface {
 	ErrorName() string
 } = SearchReplyValidationError{}
 
-// Validate checks the field values on AddClassByHandRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddClassByHandRequest) Validate() error {
+// Validate checks the field values on AddClassRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddClassRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddClassByHandRequest with the rules
+// ValidateAll checks the field values on AddClassRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddClassByHandRequestMultiError, or nil if none found.
-func (m *AddClassByHandRequest) ValidateAll() error {
+// AddClassRequestMultiError, or nil if none found.
+func (m *AddClassRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddClassByHandRequest) validate(all bool) error {
+func (m *AddClassRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -293,7 +293,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetStuId()) != 10 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "StuId",
 			reason: "value length must be 10 runes",
 		}
@@ -305,7 +305,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetName()) < 1 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Name",
 			reason: "value length must be at least 1 runes",
 		}
@@ -316,7 +316,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetDurClass()) < 1 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "DurClass",
 			reason: "value length must be at least 1 runes",
 		}
@@ -327,7 +327,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetWhere()) < 1 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Where",
 			reason: "value length must be at least 1 runes",
 		}
@@ -338,7 +338,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetTeacher()) < 1 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Teacher",
 			reason: "value length must be at least 1 runes",
 		}
@@ -349,7 +349,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if m.GetWeeks() <= 0 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Weeks",
 			reason: "value must be greater than 0",
 		}
@@ -360,7 +360,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetSemester()) != 1 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Semester",
 			reason: "value length must be 1 runes",
 		}
@@ -372,7 +372,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetYear()) < 1 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Year",
 			reason: "value length must be at least 1 runes",
 		}
@@ -383,7 +383,7 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	}
 
 	if val := m.GetDay(); val < 1 || val > 7 {
-		err := AddClassByHandRequestValidationError{
+		err := AddClassRequestValidationError{
 			field:  "Day",
 			reason: "value must be inside range [1, 7]",
 		}
@@ -396,19 +396,19 @@ func (m *AddClassByHandRequest) validate(all bool) error {
 	// no validation rules for Credit
 
 	if len(errors) > 0 {
-		return AddClassByHandRequestMultiError(errors)
+		return AddClassRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddClassByHandRequestMultiError is an error wrapping multiple validation
-// errors returned by AddClassByHandRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddClassByHandRequestMultiError []error
+// AddClassRequestMultiError is an error wrapping multiple validation errors
+// returned by AddClassRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AddClassRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddClassByHandRequestMultiError) Error() string {
+func (m AddClassRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -417,11 +417,11 @@ func (m AddClassByHandRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddClassByHandRequestMultiError) AllErrors() []error { return m }
+func (m AddClassRequestMultiError) AllErrors() []error { return m }
 
-// AddClassByHandRequestValidationError is the validation error returned by
-// AddClassByHandRequest.Validate if the designated constraints aren't met.
-type AddClassByHandRequestValidationError struct {
+// AddClassRequestValidationError is the validation error returned by
+// AddClassRequest.Validate if the designated constraints aren't met.
+type AddClassRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -429,24 +429,22 @@ type AddClassByHandRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddClassByHandRequestValidationError) Field() string { return e.field }
+func (e AddClassRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddClassByHandRequestValidationError) Reason() string { return e.reason }
+func (e AddClassRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddClassByHandRequestValidationError) Cause() error { return e.cause }
+func (e AddClassRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddClassByHandRequestValidationError) Key() bool { return e.key }
+func (e AddClassRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddClassByHandRequestValidationError) ErrorName() string {
-	return "AddClassByHandRequestValidationError"
-}
+func (e AddClassRequestValidationError) ErrorName() string { return "AddClassRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AddClassByHandRequestValidationError) Error() string {
+func (e AddClassRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -458,14 +456,14 @@ func (e AddClassByHandRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddClassByHandRequest.%s: %s%s",
+		"invalid %sAddClassRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddClassByHandRequestValidationError{}
+var _ error = AddClassRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -473,24 +471,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddClassByHandRequestValidationError{}
+} = AddClassRequestValidationError{}
 
-// Validate checks the field values on AddClassByHandReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddClassByHandReply) Validate() error {
+// Validate checks the field values on AddClassReply with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *AddClassReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddClassByHandReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddClassByHandReplyMultiError, or nil if none found.
-func (m *AddClassByHandReply) ValidateAll() error {
+// ValidateAll checks the field values on AddClassReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AddClassReplyMultiError, or
+// nil if none found.
+func (m *AddClassReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddClassByHandReply) validate(all bool) error {
+func (m *AddClassReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -502,19 +500,19 @@ func (m *AddClassByHandReply) validate(all bool) error {
 	// no validation rules for Msg
 
 	if len(errors) > 0 {
-		return AddClassByHandReplyMultiError(errors)
+		return AddClassReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddClassByHandReplyMultiError is an error wrapping multiple validation
-// errors returned by AddClassByHandReply.ValidateAll() if the designated
-// constraints aren't met.
-type AddClassByHandReplyMultiError []error
+// AddClassReplyMultiError is an error wrapping multiple validation errors
+// returned by AddClassReply.ValidateAll() if the designated constraints
+// aren't met.
+type AddClassReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddClassByHandReplyMultiError) Error() string {
+func (m AddClassReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -523,11 +521,11 @@ func (m AddClassByHandReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddClassByHandReplyMultiError) AllErrors() []error { return m }
+func (m AddClassReplyMultiError) AllErrors() []error { return m }
 
-// AddClassByHandReplyValidationError is the validation error returned by
-// AddClassByHandReply.Validate if the designated constraints aren't met.
-type AddClassByHandReplyValidationError struct {
+// AddClassReplyValidationError is the validation error returned by
+// AddClassReply.Validate if the designated constraints aren't met.
+type AddClassReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -535,24 +533,22 @@ type AddClassByHandReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddClassByHandReplyValidationError) Field() string { return e.field }
+func (e AddClassReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddClassByHandReplyValidationError) Reason() string { return e.reason }
+func (e AddClassReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddClassByHandReplyValidationError) Cause() error { return e.cause }
+func (e AddClassReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddClassByHandReplyValidationError) Key() bool { return e.key }
+func (e AddClassReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddClassByHandReplyValidationError) ErrorName() string {
-	return "AddClassByHandReplyValidationError"
-}
+func (e AddClassReplyValidationError) ErrorName() string { return "AddClassReplyValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AddClassByHandReplyValidationError) Error() string {
+func (e AddClassReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -564,14 +560,14 @@ func (e AddClassByHandReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddClassByHandReply.%s: %s%s",
+		"invalid %sAddClassReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddClassByHandReplyValidationError{}
+var _ error = AddClassReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -579,244 +575,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddClassByHandReplyValidationError{}
-
-// Validate checks the field values on AddClassBySearchRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddClassBySearchRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddClassBySearchRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddClassBySearchRequestMultiError, or nil if none found.
-func (m *AddClassBySearchRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddClassBySearchRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetClassInfo()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddClassBySearchRequestValidationError{
-					field:  "ClassInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddClassBySearchRequestValidationError{
-					field:  "ClassInfo",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetClassInfo()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddClassBySearchRequestValidationError{
-				field:  "ClassInfo",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddClassBySearchRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddClassBySearchRequestMultiError is an error wrapping multiple validation
-// errors returned by AddClassBySearchRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddClassBySearchRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddClassBySearchRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddClassBySearchRequestMultiError) AllErrors() []error { return m }
-
-// AddClassBySearchRequestValidationError is the validation error returned by
-// AddClassBySearchRequest.Validate if the designated constraints aren't met.
-type AddClassBySearchRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddClassBySearchRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddClassBySearchRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddClassBySearchRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddClassBySearchRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddClassBySearchRequestValidationError) ErrorName() string {
-	return "AddClassBySearchRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddClassBySearchRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddClassBySearchRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddClassBySearchRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddClassBySearchRequestValidationError{}
-
-// Validate checks the field values on AddClassBySearchReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddClassBySearchReply) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddClassBySearchReply with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddClassBySearchReplyMultiError, or nil if none found.
-func (m *AddClassBySearchReply) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddClassBySearchReply) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Id
-
-	// no validation rules for Msg
-
-	if len(errors) > 0 {
-		return AddClassBySearchReplyMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddClassBySearchReplyMultiError is an error wrapping multiple validation
-// errors returned by AddClassBySearchReply.ValidateAll() if the designated
-// constraints aren't met.
-type AddClassBySearchReplyMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddClassBySearchReplyMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddClassBySearchReplyMultiError) AllErrors() []error { return m }
-
-// AddClassBySearchReplyValidationError is the validation error returned by
-// AddClassBySearchReply.Validate if the designated constraints aren't met.
-type AddClassBySearchReplyValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddClassBySearchReplyValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddClassBySearchReplyValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddClassBySearchReplyValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddClassBySearchReplyValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddClassBySearchReplyValidationError) ErrorName() string {
-	return "AddClassBySearchReplyValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddClassBySearchReplyValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddClassBySearchReply.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddClassBySearchReplyValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddClassBySearchReplyValidationError{}
+} = AddClassReplyValidationError{}
 
 // Validate checks the field values on ClassInfo with the rules defined in the
 // proto definition for this message. If any rules are violated, the first

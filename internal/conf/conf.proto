@@ -8,6 +8,7 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
   Server server = 1;
   Data data = 2;
+  Registry registry = 3;
 }
 
 message Server {
@@ -31,4 +32,10 @@ message Data {
     bool setsniff = 2;
   }
   ES es = 1;
+}
+message Etcd {
+  string addr = 1;
+}
+message Registry {
+  Etcd etcd = 1;
 }
