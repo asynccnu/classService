@@ -19,14 +19,6 @@ const mapping = `
       "id": {
         "type": "keyword"
       },
-      "created_at": {
-        "type": "date",
-        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ||epoch_millis"
-      },
-      "updated_at": {
-        "type": "date",
-        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ||epoch_millis"
-      },
       "day": {
         "type": "integer"
       },

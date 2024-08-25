@@ -1,11 +1,7 @@
 package biz
 
-import "time"
-
 type ClassInfo struct {
-	ID           string `gorm:"primaryKey;column:id" json:"id"` //集合了课程信息的字符串，便于标识（课程ID）
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID           string  `gorm:"primaryKey;column:id" json:"id"`                     //集合了课程信息的字符串，便于标识（课程ID）
 	Day          int64   `gorm:"column:day;not null" json:"day"`                     //星期几
 	Teacher      string  `gorm:"column:teacher;not null" json:"teacher"`             //任课教师
 	Where        string  `gorm:"column:where;not null" json:"where"`                 //上课地点

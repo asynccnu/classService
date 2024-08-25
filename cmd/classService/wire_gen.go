@@ -8,11 +8,14 @@ package main
 
 import (
 	"classService/internal/biz"
+	"classService/internal/client"
 	"classService/internal/conf"
 	"classService/internal/data"
+	"classService/internal/logPrinter"
+	"classService/internal/pkg/timedTask"
+	"classService/internal/registry"
 	"classService/internal/server"
 	"classService/internal/service"
-	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
@@ -23,18 +26,31 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData(confData, logger)
+func wireApp(confServer *conf.Server, confData *conf.Data, confRegistry *conf.Registry, logger log.Logger) (*APP, func(), error) {
+	elasticClient, err := data.NewEsClient(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	greeterRepo := data.NewGreeterRepo(dataData, logger)
-	greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
-	greeterService := service.NewGreeterService(greeterUsecase)
-	grpcServer := server.NewGRPCServer(confServer, greeterService, logger)
-	httpServer := server.NewHTTPServer(confServer, greeterService, logger)
+	logerPrinter := logPrinter.NewLogger(logger)
+	dataData, cleanup, err := data.NewData(confData, elasticClient, logerPrinter, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	etcdRegistry := registry.NewRegistrarServer(confRegistry, logger)
+	classerClient, err := client.NewClient(etcdRegistry, logger)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	classListService := client.NewClassListService(classerClient, logerPrinter)
+	classSerivceUserCase := biz.NewClassSerivceUserCase(dataData, classListService, logerPrinter)
+	classServiceService := service.NewClassServiceService(classSerivceUserCase, logerPrinter)
+	grpcServer := server.NewGRPCServer(confServer, classServiceService, logger)
+	httpServer := server.NewHTTPServer(confServer, classServiceService, logger)
 	app := newApp(logger, grpcServer, httpServer)
-	return app, func() {
+	task := timedTask.NewTask(classSerivceUserCase)
+	mainAPP := NewApp(app, task)
+	return mainAPP, func() {
 		cleanup()
 	}, nil
 }

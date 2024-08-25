@@ -1,6 +1,7 @@
 package main
 
 import (
+	"classService/internal/pkg/timedTask"
 	"flag"
 	"os"
 
@@ -29,6 +30,14 @@ var (
 	id, _ = os.Hostname()
 )
 
+type APP struct {
+	app  *kratos.App
+	task *timedTask.Task
+}
+
+func NewApp(app *kratos.App, task *timedTask.Task) *APP {
+	return &APP{app: app, task: task}
+}
 func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
@@ -74,14 +83,15 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
+	APP, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
 	if err != nil {
 		panic(err)
 	}
 	defer cleanup()
-
+	// 启动AddClassInfosToES的定时任务
+	APP.task.AddClassInfosToES()
 	// start and wait for stop signal
-	if err := app.Run(); err != nil {
+	if err := APP.app.Run(); err != nil {
 		panic(err)
 	}
 }
