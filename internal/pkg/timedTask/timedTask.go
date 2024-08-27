@@ -41,7 +41,7 @@ func StartATask(task func()) {
 
 	// 添加定时任务：每天凌晨 3 点执行
 	c.AddFunc("0 0 3 * * *", task)
-
+	//task()
 	// 启动定时任务调度器
 	c.Start()
 }
