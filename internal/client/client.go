@@ -22,8 +22,11 @@ type ClassListService struct {
 	log logPrinter.LogerPrinter
 }
 
-func (c ClassListService) GetAllSchoolClassInfos(ctx context.Context) ([]biz.ClassInfo, error) {
-	resp, err := c.cs.GetAllClassInfo(ctx, &v1.GetAllClassInfoRequest{})
+func (c ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm string) ([]biz.ClassInfo, error) {
+	resp, err := c.cs.GetAllClassInfo(ctx, &v1.GetAllClassInfoRequest{
+		Year:     xnm,
+		Semester: xqm,
+	})
 	if err != nil {
 		c.log.FuncError(c.cs.GetAllClassInfo, err)
 		return nil, err

@@ -11,7 +11,7 @@ import (
 
 type ClassInfoProxy interface {
 	AddClassInfoToClassListService(ctx context.Context, request *v1.AddClassRequest) (*v1.AddClassResponse, error)
-	SearchClassInfo(ctx context.Context, keyWords string) ([]biz.ClassInfo, error)
+	SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]biz.ClassInfo, error)
 }
 
 type ClassServiceService struct {
@@ -28,7 +28,7 @@ func NewClassServiceService(cp ClassInfoProxy, log logPrinter.LogerPrinter) *Cla
 }
 
 func (s *ClassServiceService) SearchClass(ctx context.Context, req *pb.SearchRequest) (*pb.SearchReply, error) {
-	classInfos, err := s.cp.SearchClassInfo(ctx, req.GetSearchKeyWords())
+	classInfos, err := s.cp.SearchClassInfo(ctx, req.GetSearchKeyWords(), req.GetYear(), req.GetSemester())
 	if err != nil {
 		s.log.FuncError(s.cp.SearchClassInfo, err)
 		return &pb.SearchReply{}, err

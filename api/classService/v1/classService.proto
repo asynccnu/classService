@@ -26,7 +26,9 @@ service ClassService {
 
 // The request message containing the user's name.
 message SearchRequest {
-  string searchKeyWords = 1;
+  string searchKeyWords = 1[json_name = "searchKeyWords"];
+  string year = 2 [json_name = "year",(validate.rules).string = {min_len: 1}];
+  string semester = 3 [json_name = "semester",(validate.rules).string = {min_len: 1,max_len: 1}];
 }
 
 // The response message containing the greetings

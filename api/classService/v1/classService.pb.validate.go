@@ -59,6 +59,29 @@ func (m *SearchRequest) validate(all bool) error {
 
 	// no validation rules for SearchKeyWords
 
+	if utf8.RuneCountInString(m.GetYear()) < 1 {
+		err := SearchRequestValidationError{
+			field:  "Year",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetSemester()) != 1 {
+		err := SearchRequestValidationError{
+			field:  "Semester",
+			reason: "value length must be 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+
+	}
+
 	if len(errors) > 0 {
 		return SearchRequestMultiError(errors)
 	}

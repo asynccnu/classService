@@ -37,6 +37,14 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: year
+                  in: query
+                  schema:
+                    type: string
+                - name: semester
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK

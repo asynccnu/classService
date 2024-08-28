@@ -90,17 +90,43 @@ func (d Data) AddClassInfo(ctx context.Context, classInfo biz.ClassInfo) error {
 	}
 	return nil
 }
-func (d Data) SearchClassInfo(ctx context.Context, keyWords string) ([]biz.ClassInfo, error) {
+func (d Data) RemoveClassInfo(ctx context.Context, xnm, xqm string) {
+	// 创建查询条件，删除除了 year=xnm 和 semester=xqm 之外的所有数据
+	query := elastic.NewBoolQuery().
+		MustNot( // 这里使用 MustNot 来排除符合条件的数据
+			elastic.NewTermQuery("year", xnm),     // 排除 year 字段值为 xnm 的数据
+			elastic.NewTermQuery("semester", xqm), // 排除 semester 字段值为 xqm 的数据
+		)
+
+	// 执行删除操作
+	deleteResponse, err := d.cli.DeleteByQuery().
+		Index(indexName). // 指定索引名称
+		Query(query).     // 传递查询条件
+		Do(ctx)           // 执行删除操作
+	if err != nil {
+		d.log.FuncError(d.cli.DeleteByQuery().Index(indexName).Query(query).Do, err)
+		return
+	}
+	log.Info("Deleted %d documents", deleteResponse.Deleted)
+}
+
+func (d Data) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]biz.ClassInfo, error) {
 	var classInfos = make([]biz.ClassInfo, 0)
 	searchResult, err := d.cli.Search().
 		Index(indexName). // 指定索引名称
-		Query(elastic.NewBoolQuery().
-			Should(
-				elastic.NewMatchQuery("classname", keyWords),
-				elastic.NewMatchQuery("teacher", keyWords),
-			).
-			MinimumShouldMatch("1"), // 至少匹配一个条件
+		Query(
+			elastic.NewBoolQuery().
+				Should(
+					elastic.NewMatchQuery("classname", keyWords), // 匹配 classname
+					elastic.NewMatchQuery("teacher", keyWords),   // 匹配 teacher
+				).
+				MinimumShouldMatch("1"). // 至少匹配一个条件
+				Filter(
+					elastic.NewTermQuery("year", xnm),     // year 精确匹配 xnm
+					elastic.NewTermQuery("semester", xqm), // semester 精确匹配 xqm
+				),
 		).Do(ctx) // 执行查询
+
 	if err != nil {
 		d.log.FuncError(d.cli.Search().
 			Index(indexName).

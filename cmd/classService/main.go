@@ -90,8 +90,9 @@ func main() {
 		panic(err)
 	}
 	defer cleanup()
-	// 启动AddClassInfosToES的定时任务
+	// 启动定时任务
 	APP.task.AddClassInfosToES()
+	APP.task.DeleteSchoolClassInfosFromES()
 	// start and wait for stop signal
 	if err := APP.app.Run(); err != nil {
 		panic(err)

@@ -2,16 +2,18 @@ package biz
 
 import (
 	"classService/internal/logPrinter"
+	"classService/internal/pkg/tool"
 	"context"
 	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
 )
 
 type EsProxy interface {
 	AddClassInfo(ctx context.Context, classInfo ClassInfo) error
-	SearchClassInfo(ctx context.Context, keyWords string) ([]ClassInfo, error)
+	RemoveClassInfo(ctx context.Context, xnm, xqm string)
+	SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]ClassInfo, error)
 }
 type ClassListSerivce interface {
-	GetAllSchoolClassInfos(ctx context.Context) ([]ClassInfo, error)
+	GetAllSchoolClassInfos(ctx context.Context, xnm, xqm string) ([]ClassInfo, error)
 	AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error)
 }
 type ClassSerivceUserCase struct {
@@ -30,11 +32,12 @@ func NewClassSerivceUserCase(es EsProxy, cs ClassListSerivce, printer logPrinter
 func (c *ClassSerivceUserCase) AddClassInfoToClassListService(ctx context.Context, request *v1.AddClassRequest) (*v1.AddClassResponse, error) {
 	return c.cs.AddClassInfoToClassListService(ctx, request)
 }
-func (c *ClassSerivceUserCase) SearchClassInfo(ctx context.Context, keyWords string) ([]ClassInfo, error) {
-	return c.es.SearchClassInfo(ctx, keyWords)
+func (c *ClassSerivceUserCase) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]ClassInfo, error) {
+	return c.es.SearchClassInfo(ctx, keyWords, xnm, xqm)
 }
 func (c *ClassSerivceUserCase) AddClassInfosToES(ctx context.Context) {
-	classInfos, err := c.cs.GetAllSchoolClassInfos(ctx)
+	xnm, xqm := tool.GetXnmAndXqm()
+	classInfos, err := c.cs.GetAllSchoolClassInfos(ctx, xnm, xqm)
 	if err != nil {
 		c.log.FuncError(c.cs.GetAllSchoolClassInfos, err)
 	}
@@ -44,4 +47,8 @@ func (c *ClassSerivceUserCase) AddClassInfosToES(ctx context.Context) {
 			c.log.FuncError(c.es.AddClassInfo, err1)
 		}
 	}
+}
+func (c *ClassSerivceUserCase) DeleteSchoolClassInfosFromES(ctx context.Context) {
+	xnm, xqm := tool.GetXnmAndXqm()
+	c.es.RemoveClassInfo(ctx, xnm, xqm)
 }
