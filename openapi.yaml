@@ -56,11 +56,11 @@ components:
         classService.v1.AddClassRequest:
             type: object
             properties:
-                stuId:
+                stu_id:
                     type: string
                 name:
                     type: string
-                durClass:
+                dur_class:
                     type: string
                 where:
                     type: string
@@ -86,9 +86,9 @@ components:
                     type: string
                 where:
                     type: string
-                classWhen:
+                class_when:
                     type: string
-                weekDuration:
+                week_duration:
                     type: string
                 classname:
                     type: string
@@ -107,7 +107,7 @@ components:
         classService.v1.SearchReply:
             type: object
             properties:
-                classInfos:
+                class_infos:
                     type: array
                     items:
                         $ref: '#/components/schemas/classService.v1.ClassInfo'
