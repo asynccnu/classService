@@ -1,10 +1,10 @@
 package server
 
 import (
-	v1 "classService/api/classService/v1"
-	"classService/internal/conf"
-	"classService/internal/metrics"
-	"classService/internal/service"
+	v1 "github.com/asynccnu/classService/api/classService/v1"
+	"github.com/asynccnu/classService/internal/conf"
+	"github.com/asynccnu/classService/internal/metrics"
+	"github.com/asynccnu/classService/internal/service"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 
 	"github.com/go-kratos/kratos/v2/log"

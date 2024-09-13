@@ -1,10 +1,10 @@
 package biz
 
 import (
-	"classService/internal/logPrinter"
-	"classService/internal/pkg/tool"
 	"context"
 	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
+	"github.com/asynccnu/classService/internal/logPrinter"
+	"github.com/asynccnu/classService/internal/pkg/tool"
 )
 
 type EsProxy interface {

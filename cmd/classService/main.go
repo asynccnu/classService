@@ -1,12 +1,14 @@
 package main
 
 import (
-	"classService/internal/pkg/timedTask"
 	"flag"
+	"github.com/asynccnu/classService/internal/metrics"
+	"github.com/asynccnu/classService/internal/pkg/timedTask"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
+	"github.com/prometheus/client_golang/prometheus"
 	"os"
 
-	"classService/internal/conf"
+	"github.com/asynccnu/classService/internal/conf"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
@@ -40,6 +42,7 @@ func NewApp(app *kratos.App, task *timedTask.Task) *APP {
 	return &APP{app: app, task: task}
 }
 func init() {
+	prometheus.MustRegister(metrics.Counter, metrics.Summary)
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 

@@ -1,10 +1,10 @@
 package client
 
 import (
-	"classService/internal/biz"
-	"classService/internal/logPrinter"
 	"context"
 	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
+	"github.com/asynccnu/classService/internal/biz"
+	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -22,6 +22,22 @@ type ClassListService struct {
 	log logPrinter.LogerPrinter
 }
 
+func NewClient(r *etcd.Registry, logger log.Logger) (v1.ClasserClient, error) {
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(CLASSLISTSERVICE), // 需要发现的服务，如果是k8s部署可以直接用服务器本地地址:9001，9001端口是需要调用的服务的端口
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			tracing.Client(),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		log.NewHelper(logger).WithContext(context.Background()).Errorw("kind", "grpc-client", "reason", "GRPC_CLIENT_INIT_ERROR", "err", err)
+		return nil, err
+	}
+	return v1.NewClasserClient(conn), nil
+}
 func (c ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm string) ([]biz.ClassInfo, error) {
 	resp, err := c.cs.GetAllClassInfo(ctx, &v1.GetAllClassInfoRequest{
 		Year:     xnm,
@@ -60,26 +76,9 @@ func (c ClassListService) AddClassInfoToClassListService(ctx context.Context, re
 	return resp, nil
 
 }
-
 func NewClassListService(cs v1.ClasserClient, log logPrinter.LogerPrinter) *ClassListService {
 	return &ClassListService{
 		cs:  cs,
 		log: log,
 	}
-}
-func NewClient(r *etcd.Registry, logger log.Logger) (v1.ClasserClient, error) {
-	conn, err := grpc.DialInsecure(
-		context.Background(),
-		grpc.WithEndpoint(CLASSLISTSERVICE), // 需要发现的服务，如果是k8s部署可以直接用服务器本地地址:9001，9001端口是需要调用的服务的端口
-		grpc.WithDiscovery(r),
-		grpc.WithMiddleware(
-			tracing.Client(),
-			recovery.Recovery(),
-		),
-	)
-	if err != nil {
-		log.NewHelper(logger).WithContext(context.Background()).Errorw("kind", "grpc-client", "reason", "GRPC_CLIENT_INIT_ERROR", "err", err)
-		return nil, err
-	}
-	return v1.NewClasserClient(conn), nil
 }

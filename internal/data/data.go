@@ -1,12 +1,12 @@
 package data
 
 import (
-	"classService/internal/biz"
-	"classService/internal/conf"
-	"classService/internal/errcode"
-	"classService/internal/logPrinter"
 	"context"
 	"encoding/json"
+	"github.com/asynccnu/classService/internal/biz"
+	"github.com/asynccnu/classService/internal/conf"
+	"github.com/asynccnu/classService/internal/errcode"
+	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/olivere/elastic/v7"

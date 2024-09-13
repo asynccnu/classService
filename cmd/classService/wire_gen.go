@@ -7,15 +7,15 @@
 package main
 
 import (
-	"classService/internal/biz"
-	"classService/internal/client"
-	"classService/internal/conf"
-	"classService/internal/data"
-	"classService/internal/logPrinter"
-	"classService/internal/pkg/timedTask"
-	"classService/internal/registry"
-	"classService/internal/server"
-	"classService/internal/service"
+	"github.com/asynccnu/classService/internal/biz"
+	"github.com/asynccnu/classService/internal/client"
+	"github.com/asynccnu/classService/internal/conf"
+	"github.com/asynccnu/classService/internal/data"
+	"github.com/asynccnu/classService/internal/logPrinter"
+	"github.com/asynccnu/classService/internal/pkg/timedTask"
+	"github.com/asynccnu/classService/internal/registry"
+	"github.com/asynccnu/classService/internal/server"
+	"github.com/asynccnu/classService/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 )
 

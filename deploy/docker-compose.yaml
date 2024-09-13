@@ -1,0 +1,19 @@
+# yaml 配置
+version: "3.7"
+services:
+  es:
+    image: elasticsearch:7.17.23
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - "./esdata:/usr/share/elasticsearch/data"
+  classService:
+    image: extra_class
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - "../configs:/data/conf"

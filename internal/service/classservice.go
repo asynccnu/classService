@@ -1,12 +1,12 @@
 package service
 
 import (
-	"classService/internal/biz"
-	"classService/internal/logPrinter"
 	"context"
 	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
+	"github.com/asynccnu/classService/internal/biz"
+	"github.com/asynccnu/classService/internal/logPrinter"
 
-	pb "classService/api/classService/v1"
+	pb "github.com/asynccnu/classService/api/classService/v1"
 )
 
 type ClassInfoProxy interface {

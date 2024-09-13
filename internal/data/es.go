@@ -1,9 +1,9 @@
 package data
 
 import (
-	"classService/internal/conf"
 	"context"
 	"fmt"
+	"github.com/asynccnu/classService/internal/conf"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/olivere/elastic/v7"
 )
