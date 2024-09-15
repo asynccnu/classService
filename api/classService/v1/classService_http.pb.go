@@ -23,14 +23,15 @@ const OperationClassServiceAddClass = "/classService.v1.ClassService/AddClass"
 const OperationClassServiceSearchClass = "/classService.v1.ClassService/SearchClass"
 
 type ClassServiceHTTPServer interface {
+	// AddClass添加课程
 	AddClass(context.Context, *AddClassRequest) (*AddClassReply, error)
-	// SearchClass Sends a greeting
+	// SearchClass 数据源是所有使用匣子的用户的课表，从其中搜索相应的课程
 	SearchClass(context.Context, *SearchRequest) (*SearchReply, error)
 }
 
 func RegisterClassServiceHTTPServer(s *http.Server, srv ClassServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/class/search/{searchKeyWords}", _ClassService_SearchClass0_HTTP_Handler(srv))
+	r.GET("/class/search/{year}/{semester}/{searchKeyWords}", _ClassService_SearchClass0_HTTP_Handler(srv))
 	r.POST("/class/add", _ClassService_AddClass0_HTTP_Handler(srv))
 }
 
@@ -106,7 +107,7 @@ func (c *ClassServiceHTTPClientImpl) AddClass(ctx context.Context, in *AddClassR
 
 func (c *ClassServiceHTTPClientImpl) SearchClass(ctx context.Context, in *SearchRequest, opts ...http.CallOption) (*SearchReply, error) {
 	var out SearchReply
-	pattern := "/class/search/{searchKeyWords}"
+	pattern := "/class/search/{year}/{semester}/{searchKeyWords}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationClassServiceSearchClass))
 	opts = append(opts, http.PathTemplate(pattern))

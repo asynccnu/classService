@@ -29,8 +29,9 @@ const (
 //
 // The greeting service definition.
 type ClassServiceClient interface {
-	// Sends a greeting
+	// 数据源是所有使用匣子的用户的课表，从其中搜索相应的课程
 	SearchClass(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchReply, error)
+	// 添加课程
 	AddClass(ctx context.Context, in *AddClassRequest, opts ...grpc.CallOption) (*AddClassReply, error)
 }
 
@@ -68,8 +69,9 @@ func (c *classServiceClient) AddClass(ctx context.Context, in *AddClassRequest, 
 //
 // The greeting service definition.
 type ClassServiceServer interface {
-	// Sends a greeting
+	// 数据源是所有使用匣子的用户的课表，从其中搜索相应的课程
 	SearchClass(context.Context, *SearchRequest) (*SearchReply, error)
+	// 添加课程
 	AddClass(context.Context, *AddClassRequest) (*AddClassReply, error)
 	mustEmbedUnimplementedClassServiceServer()
 }
