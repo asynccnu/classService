@@ -30,8 +30,8 @@ type ClassServiceHTTPServer interface {
 
 func RegisterClassServiceHTTPServer(s *http.Server, srv ClassServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/classService/search/{searchKeyWords}", _ClassService_SearchClass0_HTTP_Handler(srv))
-	r.POST("/classService/addByHand", _ClassService_AddClass0_HTTP_Handler(srv))
+	r.GET("/class/search/{searchKeyWords}", _ClassService_SearchClass0_HTTP_Handler(srv))
+	r.POST("/class/add", _ClassService_AddClass0_HTTP_Handler(srv))
 }
 
 func _ClassService_SearchClass0_HTTP_Handler(srv ClassServiceHTTPServer) func(ctx http.Context) error {
@@ -93,7 +93,7 @@ func NewClassServiceHTTPClient(client *http.Client) ClassServiceHTTPClient {
 
 func (c *ClassServiceHTTPClientImpl) AddClass(ctx context.Context, in *AddClassRequest, opts ...http.CallOption) (*AddClassReply, error) {
 	var out AddClassReply
-	pattern := "/classService/addByHand"
+	pattern := "/class/add"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationClassServiceAddClass))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -106,7 +106,7 @@ func (c *ClassServiceHTTPClientImpl) AddClass(ctx context.Context, in *AddClassR
 
 func (c *ClassServiceHTTPClientImpl) SearchClass(ctx context.Context, in *SearchRequest, opts ...http.CallOption) (*SearchReply, error) {
 	var out SearchReply
-	pattern := "/classService/search/{searchKeyWords}"
+	pattern := "/class/search/{searchKeyWords}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationClassServiceSearchClass))
 	opts = append(opts, http.PathTemplate(pattern))

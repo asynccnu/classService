@@ -7,7 +7,7 @@ info:
     description: The greeting service definition.
     version: 0.0.1
 paths:
-    /classService/addByHand:
+    /class/add:
         post:
             tags:
                 - ClassService
@@ -25,7 +25,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/classService.v1.AddClassReply'
-    /classService/search/{searchKeyWords}:
+    /class/search/{searchKeyWords}:
         get:
             tags:
                 - ClassService

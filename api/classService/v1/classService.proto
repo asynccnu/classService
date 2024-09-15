@@ -12,13 +12,13 @@ service ClassService {
   // Sends a greeting
   rpc SearchClass (SearchRequest) returns (SearchReply) {
     option (google.api.http) = {
-      get: "/classService/search/{searchKeyWords}"
+      get: "/class/search/{searchKeyWords}"
     };
   }
 
   rpc AddClass (AddClassRequest) returns (AddClassReply) {
       option (google.api.http) = {
-        post: "/classService/addByHand"
+        post: "/class/add"
         body: "*"
       };
   }
