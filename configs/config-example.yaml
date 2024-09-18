@@ -1,0 +1,14 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  es:
+    url: "http://127.0.0.1:9200"
+    setsniff: false
+registry:
+  etcd:
+    addr: "Etcd:2379"

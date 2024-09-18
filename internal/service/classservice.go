@@ -2,11 +2,10 @@ package service
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
+	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
+	pb "github.com/asynccnu/classService/api/classService/v1"
 	"github.com/asynccnu/classService/internal/biz"
 	"github.com/asynccnu/classService/internal/logPrinter"
-
-	pb "github.com/asynccnu/be-api/gen/proto/classService/v1"
 )
 
 type ClassInfoProxy interface {
@@ -27,23 +26,23 @@ func NewClassServiceService(cp ClassInfoProxy, log logPrinter.LogerPrinter) *Cla
 	}
 }
 
-func (s *ClassServiceService) SearchClass(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
+func (s *ClassServiceService) SearchClass(ctx context.Context, req *pb.SearchRequest) (*pb.SearchReply, error) {
 	classInfos, err := s.cp.SearchClassInfo(ctx, req.GetSearchKeyWords(), req.GetYear(), req.GetSemester())
 	if err != nil {
 		s.log.FuncError(s.cp.SearchClassInfo, err)
-		return &pb.SearchResponse{}, err
+		return &pb.SearchReply{}, err
 	}
 	var pClassInfos = make([]*pb.ClassInfo, 0)
 	for _, classInfo := range classInfos {
 		info := HandleClassInfo(classInfo)
 		pClassInfos = append(pClassInfos, info)
 	}
-	return &pb.SearchResponse{
+	return &pb.SearchReply{
 		ClassInfos: pClassInfos,
 	}, nil
 }
 
-func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequest) (*pb.AddClassResponse, error) {
+func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequest) (*pb.AddClassReply, error) {
 	preq := &v1.AddClassRequest{
 		StuId:    req.GetStuId(),
 		Name:     req.GetName(),
@@ -56,14 +55,14 @@ func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequ
 		Day:      req.GetDay(),
 	}
 	if req.Credit != nil {
-		*preq.Credit = req.GetCredit()
+		preq.Credit = req.GetCredit()
 	}
 	resp, err := s.cp.AddClassInfoToClassListService(ctx, preq)
 	if err != nil {
 		s.log.FuncError(s.cp.AddClassInfoToClassListService, err)
-		return &pb.AddClassResponse{}, err
+		return &pb.AddClassReply{}, err
 	}
-	return &pb.AddClassResponse{
+	return &pb.AddClassReply{
 		Id:  resp.Id,
 		Msg: resp.Msg,
 	}, nil
