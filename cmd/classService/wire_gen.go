@@ -46,8 +46,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, confRegistry *conf.Re
 	classSerivceUserCase := biz.NewClassSerivceUserCase(dataData, classListService, logerPrinter)
 	classServiceService := service.NewClassServiceService(classSerivceUserCase, logerPrinter)
 	grpcServer := server.NewGRPCServer(confServer, classServiceService, logger)
-	httpServer := server.NewHTTPServer(confServer, classServiceService, logger)
-	app := newApp(logger, grpcServer, httpServer, etcdRegistry)
+	app := newApp(logger, grpcServer, etcdRegistry)
 	task := timedTask.NewTask(classSerivceUserCase)
 	mainAPP := NewApp(app, task)
 	return mainAPP, func() {

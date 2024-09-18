@@ -1,7 +1,6 @@
 package server
 
 import (
-	v1 "github.com/asynccnu/classService/api/classService/v1"
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/metrics"
 	"github.com/asynccnu/classService/internal/pkg/encoder"
@@ -34,6 +33,5 @@ func NewHTTPServer(c *conf.Server, greeter *service.ClassServiceService, logger 
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	v1.RegisterClassServiceHTTPServer(srv, greeter)
 	return srv
 }

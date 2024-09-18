@@ -21,6 +21,8 @@ func NewRegistrarServer(c *conf.Registry, logger log.Logger) *etcd.Registry {
 		Endpoints:   endpoints,
 		DialTimeout: time.Second,
 		DialOptions: []grpc.DialOption{grpc.WithBlock()},
+		Username:    c.Etcd.Username,
+		Password:    c.Etcd.Password,
 	}
 
 	// 创建ETCD客户端

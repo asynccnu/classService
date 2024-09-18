@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "github.com/asynccnu/classService/api/classService/v1"
+	v1 "github.com/asynccnu/be-api/gen/proto/classService/v1"
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/metrics"
 	"github.com/asynccnu/classService/internal/service"

@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
 	"github.com/asynccnu/classService/internal/biz"
 	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
@@ -38,7 +38,8 @@ func NewClient(r *etcd.Registry, logger log.Logger) (v1.ClasserClient, error) {
 	}
 	return v1.NewClasserClient(conn), nil
 }
-func (c ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm string) ([]biz.ClassInfo, error) {
+
+func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm string) ([]biz.ClassInfo, error) {
 	resp, err := c.cs.GetAllClassInfo(ctx, &v1.GetAllClassInfoRequest{
 		Year:     xnm,
 		Semester: xqm,
@@ -67,7 +68,7 @@ func (c ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm s
 	return classInfos, nil
 }
 
-func (c ClassListService) AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error) {
+func (c *ClassListService) AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error) {
 	resp, err := c.cs.AddClass(ctx, req)
 	if err != nil {
 		c.log.FuncError(c.cs.AddClass, err)
