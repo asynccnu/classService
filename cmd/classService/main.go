@@ -91,6 +91,7 @@ func main() {
 		panic(err)
 	}
 	defer cleanup()
+
 	// 启动定时任务
 	APP.task.AddClassInfosToES()
 	APP.task.DeleteSchoolClassInfosFromES()

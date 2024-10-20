@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	v1 "github.com/asynccnu/Muxi_ClassList/api/classer/v1"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
 	pb "github.com/asynccnu/classService/api/classService/v1"
 	"github.com/asynccnu/classService/internal/biz"
 	"github.com/asynccnu/classService/internal/logPrinter"
@@ -55,7 +55,7 @@ func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequ
 		Day:      req.GetDay(),
 	}
 	if req.Credit != nil {
-		preq.Credit = req.GetCredit()
+		*preq.Credit = req.GetCredit()
 	}
 	resp, err := s.cp.AddClassInfoToClassListService(ctx, preq)
 	if err != nil {
