@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
 	"github.com/asynccnu/classService/internal/biz"
 	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"

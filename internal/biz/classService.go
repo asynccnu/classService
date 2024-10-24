@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
 	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/asynccnu/classService/internal/pkg/tool"
 )

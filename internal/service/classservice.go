@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
 	pb "github.com/asynccnu/classService/api/classService/v1"
 	"github.com/asynccnu/classService/internal/biz"
 	"github.com/asynccnu/classService/internal/logPrinter"
