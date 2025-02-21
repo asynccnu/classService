@@ -1,4 +1,4 @@
-package biz
+package model
 
 type ClassInfo struct {
 	ID           string  `gorm:"primaryKey;column:id" json:"id"`                     //集合了课程信息的字符串，便于标识（课程ID）

@@ -3,11 +3,9 @@ package data
 import (
 	"context"
 	"encoding/json"
-	"github.com/asynccnu/classService/internal/biz"
-	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/errcode"
 	clog "github.com/asynccnu/classService/internal/log"
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/asynccnu/classService/internal/model"
 	"github.com/google/wire"
 	"github.com/olivere/elastic/v7"
 )
@@ -63,16 +61,16 @@ type Data struct {
 }
 
 // NewData .
-func NewData(c *conf.Data, cli *elastic.Client, logger log.Logger) (*Data, func(), error) {
+func NewData(cli *elastic.Client) (*Data, func(), error) {
 	cleanup := func() {
-		log.NewHelper(logger).Info("closing the data resources")
+		clog.LogPrinter.Info("closing the data resources")
 	}
 	return &Data{
 		cli: cli,
 	}, cleanup, nil
 }
 
-func (d Data) AddClassInfo(ctx context.Context, classInfo biz.ClassInfo) error {
+func (d Data) AddClassInfo(ctx context.Context, classInfo model.ClassInfo) error {
 	// 创建文档
 	_, err := d.cli.Index().
 		Index(indexName).
@@ -85,49 +83,53 @@ func (d Data) AddClassInfo(ctx context.Context, classInfo biz.ClassInfo) error {
 	}
 	return nil
 }
+
+// 删除除了 year=xnm 和 semester=xqm 之外的所有数据
 func (d Data) RemoveClassInfo(ctx context.Context, xnm, xqm string) {
 	// 创建查询条件，删除除了 year=xnm 和 semester=xqm 之外的所有数据
 	query := elastic.NewBoolQuery().
-		MustNot( // 这里使用 MustNot 来排除符合条件的数据
-			elastic.NewTermQuery("year", xnm),     // 排除 year 字段值为 xnm 的数据
-			elastic.NewTermQuery("semester", xqm), // 排除 semester 字段值为 xqm 的数据
+		Should(
+			elastic.NewBoolQuery().MustNot(elastic.NewTermQuery("year", xnm)),     // year != xnm
+			elastic.NewBoolQuery().MustNot(elastic.NewTermQuery("semester", xqm)), // semester != xqm
 		)
 
 	// 执行删除操作
 	deleteResponse, err := d.cli.DeleteByQuery().
-		Index(indexName). // 指定索引名称
-		Query(query).     // 传递查询条件
-		Do(ctx)           // 执行删除操作
+		Index(indexName).
+		Query(query).
+		Slices("auto"). // 自动计算分片数
+		Size(1000).     // 每批次删除 1000 条
+		Do(ctx)
 	if err != nil {
-		clog.LogPrinter.Errorf("es: failed to delete class_info[xnm:%v,xqm:%v]: %v", xnm, xqm, err)
+		clog.LogPrinter.Errorf("es: failed to delete class_info[except (xnm:%v,xqm:%v)]: %v", xnm, xqm, err)
 		return
 	}
 	clog.LogPrinter.Infof("Deleted %d documents", deleteResponse.Deleted)
 }
 
-func (d Data) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]biz.ClassInfo, error) {
-	var classInfos = make([]biz.ClassInfo, 0)
+func (d Data) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]model.ClassInfo, error) {
+	var classInfos = make([]model.ClassInfo, 0)
 	searchResult, err := d.cli.Search().
 		Index(indexName). // 指定索引名称
 		Query(
 			elastic.NewBoolQuery().
 				Should(
-					elastic.NewMatchQuery("classname", keyWords), // 匹配 classname
-					elastic.NewMatchQuery("teacher", keyWords),   // 匹配 teacher
+					elastic.NewWildcardQuery("classname", "*"+keyWords+"*"), // 模糊匹配 classname
+					elastic.NewWildcardQuery("teacher", "*"+keyWords+"*"),   // 模糊匹配 teacher
 				).
 				MinimumShouldMatch("1"). // 至少匹配一个条件
 				Filter(
 					elastic.NewTermQuery("year", xnm),     // year 精确匹配 xnm
 					elastic.NewTermQuery("semester", xqm), // semester 精确匹配 xqm
 				),
-		).Do(ctx) // 执行查询
+		).Do(ctx)
 
 	if err != nil {
 		clog.LogPrinter.Errorf("es: failed to search class_info[keywords:%v xnm:%v xqm:%v]: %v", keyWords, xnm, xqm, err)
 		return nil, errcode.Err_EsSearchClassInfo
 	}
 	for _, hit := range searchResult.Hits.Hits {
-		var classInfo biz.ClassInfo
+		var classInfo model.ClassInfo
 		err := json.Unmarshal(hit.Source, &classInfo)
 		if err != nil {
 			clog.LogPrinter.Errorf("json unmarshal %v failed: %v", hit.Source, err)

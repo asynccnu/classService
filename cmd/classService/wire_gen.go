@@ -30,12 +30,12 @@ func wireApp(confServer *conf.Server, confData *conf.Data, confRegistry *conf.Re
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(confData, elasticClient, logger)
+	dataData, cleanup, err := data.NewData(elasticClient)
 	if err != nil {
 		return nil, nil, err
 	}
 	etcdRegistry := registry.NewRegistrarServer(confRegistry)
-	classerClient, err := client.NewClient(etcdRegistry, logger)
+	classerClient, err := client.NewClient(etcdRegistry)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

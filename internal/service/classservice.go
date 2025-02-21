@@ -2,14 +2,14 @@ package service
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
 	pb "github.com/asynccnu/classService/api/classService/v1"
-	"github.com/asynccnu/classService/internal/biz"
+	"github.com/asynccnu/classService/internal/model"
 )
 
 type ClassInfoProxy interface {
 	AddClassInfoToClassListService(ctx context.Context, request *v1.AddClassRequest) (*v1.AddClassResponse, error)
-	SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]biz.ClassInfo, error)
+	SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]model.ClassInfo, error)
 }
 
 type ClassServiceService struct {
@@ -62,7 +62,7 @@ func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequ
 		Msg: resp.Msg,
 	}, nil
 }
-func HandleClassInfo(classInfo biz.ClassInfo) *pb.ClassInfo {
+func HandleClassInfo(classInfo model.ClassInfo) *pb.ClassInfo {
 	return &pb.ClassInfo{
 		Day:          classInfo.Day,
 		Teacher:      classInfo.Teacher,

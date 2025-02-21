@@ -2,11 +2,10 @@ package client
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
-	"github.com/asynccnu/classService/internal/biz"
+	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
 	clog "github.com/asynccnu/classService/internal/log"
+	"github.com/asynccnu/classService/internal/model"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
@@ -27,7 +26,7 @@ func NewClassListService(cs v1.ClasserClient) *ClassListService {
 	}
 }
 
-func NewClient(r *etcd.Registry, logger log.Logger) (v1.ClasserClient, error) {
+func NewClient(r *etcd.Registry) (v1.ClasserClient, error) {
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint(CLASSLISTSERVICE), // 需要发现的服务，如果是k8s部署可以直接用服务器本地地址:9001，9001端口是需要调用的服务的端口
@@ -38,24 +37,25 @@ func NewClient(r *etcd.Registry, logger log.Logger) (v1.ClasserClient, error) {
 		),
 	)
 	if err != nil {
-		log.NewHelper(logger).WithContext(context.Background()).Errorw("kind", "grpc-client", "reason", "GRPC_CLIENT_INIT_ERROR", "err", err)
+		clog.LogPrinter.Errorw("kind", "grpc-client", "reason", "GRPC_CLIENT_INIT_ERROR", "err", err)
 		return nil, err
 	}
 	return v1.NewClasserClient(conn), nil
 }
 
-func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm string) ([]biz.ClassInfo, error) {
+func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm, cursor string) ([]model.ClassInfo, string, error) {
 	resp, err := c.cs.GetAllClassInfo(ctx, &v1.GetAllClassInfoRequest{
 		Year:     xnm,
 		Semester: xqm,
+		Cursor:   cursor,
 	})
 	if err != nil {
 		clog.LogPrinter.Errorf("send request for service[%v] to get all classInfos[xnm:%v xqm:%v] failed: %v", CLASSLISTSERVICE, xnm, xqm, err)
-		return nil, err
+		return nil, "", err
 	}
-	var classInfos = make([]biz.ClassInfo, 0)
+	var classInfos = make([]model.ClassInfo, 0, len(resp.ClassInfos))
 	for _, info := range resp.ClassInfos {
-		classInfo := biz.ClassInfo{
+		classInfo := model.ClassInfo{
 			ID:           info.Id,
 			Day:          info.Day,
 			Teacher:      info.Teacher,
@@ -70,7 +70,7 @@ func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm 
 		}
 		classInfos = append(classInfos, classInfo)
 	}
-	return classInfos, nil
+	return classInfos, resp.LastTime, nil
 }
 
 func (c *ClassListService) AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error) {
