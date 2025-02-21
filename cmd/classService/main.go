@@ -5,6 +5,7 @@ import (
 	"github.com/asynccnu/classService/internal/metrics"
 	"github.com/asynccnu/classService/internal/pkg/timedTask"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/prometheus/client_golang/prometheus"
 	"os"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	_ "go.uber.org/automaxprocs"
 )

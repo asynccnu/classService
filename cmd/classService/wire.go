@@ -10,7 +10,6 @@ import (
 	"github.com/asynccnu/classService/internal/client"
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/data"
-	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/asynccnu/classService/internal/pkg/timedTask"
 	"github.com/asynccnu/classService/internal/registry"
 	"github.com/asynccnu/classService/internal/server"
@@ -28,7 +27,6 @@ func wireApp(*conf.Server, *conf.Data, *conf.Registry, log.Logger) (*APP, func()
 		registry.ProviderSet,
 		client.ProviderSet,
 		timedTask.ProviderSet,
-		logPrinter.ProviderSet,
 		wire.Bind(new(biz.EsProxy), new(*data.Data)),
 		wire.Bind(new(biz.ClassListService), new(*client.ClassListService)),
 		wire.Bind(new(timedTask.OptClassInfoToEs), new(*biz.ClassSerivceUserCase)),

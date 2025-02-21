@@ -2,8 +2,8 @@ package registry
 
 import (
 	"github.com/asynccnu/classService/internal/conf"
+	clog "github.com/asynccnu/classService/internal/log"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
@@ -12,7 +12,7 @@ import (
 
 var ProviderSet = wire.NewSet(NewRegistrarServer)
 
-func NewRegistrarServer(c *conf.Registry, logger log.Logger) *etcd.Registry {
+func NewRegistrarServer(c *conf.Registry) *etcd.Registry {
 	// ETCD源地址
 	endpoints := []string{c.Etcd.Addr}
 
@@ -31,7 +31,11 @@ func NewRegistrarServer(c *conf.Registry, logger log.Logger) *etcd.Registry {
 		panic(err)
 	}
 	//fmt.Println("connect successfully")
+
+	clog.LogPrinter.Info("connect to etcd successfully")
+
 	// 创建服务注册 registrar
+
 	registrar := etcd.New(client)
 	return registrar
 }

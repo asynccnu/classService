@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
-	"github.com/asynccnu/classService/internal/logPrinter"
+	clog "github.com/asynccnu/classService/internal/log"
 	"github.com/asynccnu/classService/internal/pkg/tool"
 )
 
@@ -18,16 +18,14 @@ type ClassListService interface {
 	AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error)
 }
 type ClassSerivceUserCase struct {
-	es  EsProxy
-	cs  ClassListService
-	log logPrinter.LogerPrinter
+	es EsProxy
+	cs ClassListService
 }
 
-func NewClassSerivceUserCase(es EsProxy, cs ClassListService, printer logPrinter.LogerPrinter) *ClassSerivceUserCase {
+func NewClassSerivceUserCase(es EsProxy, cs ClassListService) *ClassSerivceUserCase {
 	return &ClassSerivceUserCase{
-		es:  es,
-		cs:  cs,
-		log: printer,
+		es: es,
+		cs: cs,
 	}
 }
 
@@ -43,12 +41,13 @@ func (c *ClassSerivceUserCase) AddClassInfosToES(ctx context.Context) {
 	xnm, xqm := tool.GetXnmAndXqm()
 	classInfos, err := c.cs.GetAllSchoolClassInfos(ctx, xnm, xqm)
 	if err != nil {
-		c.log.FuncError(c.cs.GetAllSchoolClassInfos, err)
+		clog.LogPrinter.Errorf("failed to get all class")
+		return
 	}
 	for _, classInfo := range classInfos {
 		err1 := c.es.AddClassInfo(ctx, classInfo)
 		if err1 != nil {
-			c.log.FuncError(c.es.AddClassInfo, err1)
+			clog.LogPrinter.Errorf("add class[%v] failed: %v", classInfo, err)
 		}
 	}
 }

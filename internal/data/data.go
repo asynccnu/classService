@@ -6,7 +6,7 @@ import (
 	"github.com/asynccnu/classService/internal/biz"
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/errcode"
-	"github.com/asynccnu/classService/internal/logPrinter"
+	clog "github.com/asynccnu/classService/internal/log"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/olivere/elastic/v7"
@@ -60,17 +60,15 @@ var ProviderSet = wire.NewSet(NewData, NewEsClient)
 // Data .
 type Data struct {
 	cli *elastic.Client
-	log logPrinter.LogerPrinter
 }
 
 // NewData .
-func NewData(c *conf.Data, cli *elastic.Client, logPinter logPrinter.LogerPrinter, logger log.Logger) (*Data, func(), error) {
+func NewData(c *conf.Data, cli *elastic.Client, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 	return &Data{
 		cli: cli,
-		log: logPinter,
 	}, cleanup, nil
 }
 
@@ -82,10 +80,7 @@ func (d Data) AddClassInfo(ctx context.Context, classInfo biz.ClassInfo) error {
 		BodyJson(classInfo).
 		Do(ctx)
 	if err != nil {
-		d.log.FuncError(d.cli.Index().
-			Index(indexName).
-			BodyJson(classInfo).
-			Do, err)
+		clog.LogPrinter.Errorf("es: failed to add class_info[%+v]: %v", classInfo, err)
 		return errcode.Err_EsAddClassInfo
 	}
 	return nil
@@ -104,10 +99,10 @@ func (d Data) RemoveClassInfo(ctx context.Context, xnm, xqm string) {
 		Query(query).     // 传递查询条件
 		Do(ctx)           // 执行删除操作
 	if err != nil {
-		d.log.FuncError(d.cli.DeleteByQuery().Index(indexName).Query(query).Do, err)
+		clog.LogPrinter.Errorf("es: failed to delete class_info[xnm:%v,xqm:%v]: %v", xnm, xqm, err)
 		return
 	}
-	log.Info("Deleted %d documents", deleteResponse.Deleted)
+	clog.LogPrinter.Infof("Deleted %d documents", deleteResponse.Deleted)
 }
 
 func (d Data) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]biz.ClassInfo, error) {
@@ -128,22 +123,14 @@ func (d Data) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm str
 		).Do(ctx) // 执行查询
 
 	if err != nil {
-		d.log.FuncError(d.cli.Search().
-			Index(indexName).
-			Query(elastic.NewBoolQuery().
-				Should(
-					elastic.NewMatchQuery("classname", keyWords),
-					elastic.NewMatchQuery("teacher", keyWords),
-				).
-				MinimumShouldMatch("1"), // 至少匹配一个条件
-			).Do, err)
+		clog.LogPrinter.Errorf("es: failed to search class_info[keywords:%v xnm:%v xqm:%v]: %v", keyWords, xnm, xqm, err)
 		return nil, errcode.Err_EsSearchClassInfo
 	}
 	for _, hit := range searchResult.Hits.Hits {
 		var classInfo biz.ClassInfo
 		err := json.Unmarshal(hit.Source, &classInfo)
 		if err != nil {
-			d.log.FuncError(json.Unmarshal, err)
+			clog.LogPrinter.Errorf("json unmarshal %v failed: %v", hit.Source, err)
 			continue
 		}
 		classInfos = append(classInfos, classInfo)

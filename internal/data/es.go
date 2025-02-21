@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/asynccnu/classService/internal/conf"
-	"github.com/go-kratos/kratos/v2/log"
+	clog "github.com/asynccnu/classService/internal/log"
 	"github.com/olivere/elastic/v7"
 )
 
-func NewEsClient(c *conf.Data, logger log.Logger) (*elastic.Client, error) {
+func NewEsClient(c *conf.Data) (*elastic.Client, error) {
 	ctx := context.Background()
 
 	// 配置 Elasticsearch 的 URL 和嗅探选项
@@ -23,6 +23,8 @@ func NewEsClient(c *conf.Data, logger log.Logger) (*elastic.Client, error) {
 	if err != nil {
 		panic(fmt.Sprintf("es connect fail: %v", err))
 	}
+
+	clog.LogPrinter.Info("connect to elasticsearch successfully")
 
 	// 检查索引是否存在
 	exist, err := cli.IndexExists(indexName).Do(ctx)
@@ -39,8 +41,8 @@ func NewEsClient(c *conf.Data, logger log.Logger) (*elastic.Client, error) {
 		if !createIndex.Acknowledged {
 			panic("create index failed")
 		}
+		clog.LogPrinter.Info("Es create index successfully")
 	}
 
-	log.Info("Es create index successfully")
 	return cli, nil
 }

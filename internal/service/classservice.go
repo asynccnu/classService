@@ -5,7 +5,6 @@ import (
 	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
 	pb "github.com/asynccnu/classService/api/classService/v1"
 	"github.com/asynccnu/classService/internal/biz"
-	"github.com/asynccnu/classService/internal/logPrinter"
 )
 
 type ClassInfoProxy interface {
@@ -15,21 +14,18 @@ type ClassInfoProxy interface {
 
 type ClassServiceService struct {
 	pb.UnimplementedClassServiceServer
-	cp  ClassInfoProxy
-	log logPrinter.LogerPrinter
+	cp ClassInfoProxy
 }
 
-func NewClassServiceService(cp ClassInfoProxy, log logPrinter.LogerPrinter) *ClassServiceService {
+func NewClassServiceService(cp ClassInfoProxy) *ClassServiceService {
 	return &ClassServiceService{
-		cp:  cp,
-		log: log,
+		cp: cp,
 	}
 }
 
 func (s *ClassServiceService) SearchClass(ctx context.Context, req *pb.SearchRequest) (*pb.SearchReply, error) {
 	classInfos, err := s.cp.SearchClassInfo(ctx, req.GetSearchKeyWords(), req.GetYear(), req.GetSemester())
 	if err != nil {
-		s.log.FuncError(s.cp.SearchClassInfo, err)
 		return &pb.SearchReply{}, err
 	}
 	var pClassInfos = make([]*pb.ClassInfo, 0)
@@ -59,7 +55,6 @@ func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequ
 	}
 	resp, err := s.cp.AddClassInfoToClassListService(ctx, preq)
 	if err != nil {
-		s.log.FuncError(s.cp.AddClassInfoToClassListService, err)
 		return &pb.AddClassReply{}, err
 	}
 	return &pb.AddClassReply{

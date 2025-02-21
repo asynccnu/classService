@@ -8,7 +8,7 @@ require (
 	github.com/asynccnu/be-api v0.0.0-20241024043006-cebcfe4da943
 	github.com/envoyproxy/protoc-gen-validate v1.1.0
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20240829015636-da7356560385
-	github.com/go-kratos/kratos/v2 v2.8.0
+	github.com/go-kratos/kratos/v2 v2.8.3
 	github.com/google/wire v0.6.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/prometheus/client_golang v1.20.2
@@ -28,6 +28,7 @@ require (
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
+	github.com/go-kratos/kratos/contrib/log/zap/v2 v2.0.0-20250210091908-15168b5a1b7d // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/form/v4 v4.2.1 // indirect

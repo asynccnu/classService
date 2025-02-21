@@ -4,7 +4,7 @@ import (
 	"context"
 	v1 "github.com/asynccnu/be-api/gen/proto/classlist/classlist"
 	"github.com/asynccnu/classService/internal/biz"
-	"github.com/asynccnu/classService/internal/logPrinter"
+	clog "github.com/asynccnu/classService/internal/log"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -18,8 +18,13 @@ const CLASSLISTSERVICE = "discovery:///MuXi_ClassList"
 var ProviderSet = wire.NewSet(NewClassListService, NewClient)
 
 type ClassListService struct {
-	cs  v1.ClasserClient
-	log logPrinter.LogerPrinter
+	cs v1.ClasserClient
+}
+
+func NewClassListService(cs v1.ClasserClient) *ClassListService {
+	return &ClassListService{
+		cs: cs,
+	}
 }
 
 func NewClient(r *etcd.Registry, logger log.Logger) (v1.ClasserClient, error) {
@@ -45,7 +50,7 @@ func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm 
 		Semester: xqm,
 	})
 	if err != nil {
-		c.log.FuncError(c.cs.GetAllClassInfo, err)
+		clog.LogPrinter.Errorf("send request for service[%v] to get all classInfos[xnm:%v xqm:%v] failed: %v", CLASSLISTSERVICE, xnm, xqm, err)
 		return nil, err
 	}
 	var classInfos = make([]biz.ClassInfo, 0)
@@ -71,15 +76,9 @@ func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm 
 func (c *ClassListService) AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error) {
 	resp, err := c.cs.AddClass(ctx, req)
 	if err != nil {
-		c.log.FuncError(c.cs.AddClass, err)
+		clog.LogPrinter.Errorf("send request for service[%v] to add  classInfos[%v] failed: %v", CLASSLISTSERVICE, req, err)
 		return nil, err
 	}
 	return resp, nil
 
-}
-func NewClassListService(cs v1.ClasserClient, log logPrinter.LogerPrinter) *ClassListService {
-	return &ClassListService{
-		cs:  cs,
-		log: log,
-	}
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/asynccnu/classService/internal/client"
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/data"
-	"github.com/asynccnu/classService/internal/logPrinter"
 	"github.com/asynccnu/classService/internal/pkg/timedTask"
 	"github.com/asynccnu/classService/internal/registry"
 	"github.com/asynccnu/classService/internal/server"
@@ -27,24 +26,23 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, confRegistry *conf.Registry, logger log.Logger) (*APP, func(), error) {
-	elasticClient, err := data.NewEsClient(confData, logger)
+	elasticClient, err := data.NewEsClient(confData)
 	if err != nil {
 		return nil, nil, err
 	}
-	logerPrinter := logPrinter.NewLogger(logger)
-	dataData, cleanup, err := data.NewData(confData, elasticClient, logerPrinter, logger)
+	dataData, cleanup, err := data.NewData(confData, elasticClient, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	etcdRegistry := registry.NewRegistrarServer(confRegistry, logger)
+	etcdRegistry := registry.NewRegistrarServer(confRegistry)
 	classerClient, err := client.NewClient(etcdRegistry, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	classListService := client.NewClassListService(classerClient, logerPrinter)
-	classSerivceUserCase := biz.NewClassSerivceUserCase(dataData, classListService, logerPrinter)
-	classServiceService := service.NewClassServiceService(classSerivceUserCase, logerPrinter)
+	classListService := client.NewClassListService(classerClient)
+	classSerivceUserCase := biz.NewClassSerivceUserCase(dataData, classListService)
+	classServiceService := service.NewClassServiceService(classSerivceUserCase)
 	grpcServer := server.NewGRPCServer(confServer, classServiceService, logger)
 	app := newApp(logger, grpcServer, etcdRegistry)
 	task := timedTask.NewTask(classSerivceUserCase)
