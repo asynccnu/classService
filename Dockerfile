@@ -17,8 +17,8 @@ COPY --from=builder /src/bin /app
 
 WORKDIR /app
 
-EXPOSE 8000
-EXPOSE 9000
+EXPOSE 18000
+EXPOSE 19000
 VOLUME /data/conf
 
 CMD ["./classService", "-conf", "/data/conf/config.yaml"]
