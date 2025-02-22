@@ -3,8 +3,10 @@ package timedTask
 import (
 	"context"
 	clog "github.com/asynccnu/classService/internal/log"
+	"github.com/asynccnu/classService/internal/pkg/tool"
 	"github.com/google/wire"
 	"github.com/robfig/cron/v3"
+	"time"
 )
 
 var ProviderSet = wire.NewSet(NewTask)
@@ -18,11 +20,13 @@ type OptClassInfoToEs interface {
 // Task 定义 Task 结构体
 type Task struct {
 	a OptClassInfoToEs
+	c *cron.Cron
 }
 
 func NewTask(a OptClassInfoToEs) *Task {
 	return &Task{
 		a: a,
+		c: cron.New(),
 	}
 }
 
@@ -30,38 +34,53 @@ func NewTask(a OptClassInfoToEs) *Task {
 func (t Task) AddClassInfosToES() {
 	ctx := context.Background()
 
-	StartAShortTask(func() {
+	err := t.startAShortTask(func() {
 		clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
-		t.a.AddClassInfosToES(ctx)
+		xnm, xqm := tool.GetXnmAndXqm(time.Now())
+		t.a.AddClassInfosToES(ctx, xnm, xqm)
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 func (t Task) DeleteSchoolClassInfosFromES() {
 	ctx := context.Background()
 
-	StartLongTimeTask(func() {
+	err := t.startLongTimeTask(func() {
 		clog.LogPrinter.Info("开始执行 DeleteSchoolClassInfosFromES 任务")
-		t.a.DeleteSchoolClassInfosFromES(ctx)
+		xnm, xqm := tool.GetXnmAndXqm(time.Now())
+		t.a.DeleteSchoolClassInfosFromES(ctx, xnm, xqm)
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
-// StartAShortTask 用于启动定时任务
-func StartAShortTask(task func()) {
-	// 创建 Cron 实例
-	c := cron.New()
+// startAShortTask 用于启动定时任务
+func (t Task) startAShortTask(task func()) error {
 
 	// 添加定时任务：每天凌晨 3 点执行
-	c.AddFunc("0 0 3 * * *", task)
+	_, err := t.c.AddFunc("0 0 3 * * *", task)
+	if err != nil {
+		clog.LogPrinter.Errorf("failed to add  short task")
+		return err
+	}
 	//task()
 	// 启动定时任务调度器
-	c.Start()
+	t.c.Start()
+	return nil
 }
-func StartLongTimeTask(task func()) {
-	// 创建 Cron 实例
-	c := cron.New()
+func (t Task) startLongTimeTask(task func()) error {
 
 	// 添加定时任务：每隔3个月的1号凌晨3点执行
-	c.AddFunc("0 0 3 */3 * *", task)
+	_, err := t.c.AddFunc("0 0 3 */3 * *", task)
+
+	if err != nil {
+		clog.LogPrinter.Errorf("failed to add long task")
+		return err
+	}
 
 	// 启动定时任务调度器
-	c.Start()
+	t.c.Start()
+	return nil
 }

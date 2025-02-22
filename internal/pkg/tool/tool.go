@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-func GetXnmAndXqm() (xnm, xqm string) {
-	currentYear := time.Now().Year()
-	currentMonth := time.Now().Month()
+func GetXnmAndXqm(currentTime time.Time) (xnm, xqm string) {
+	currentYear := currentTime.Year()
+	currentMonth := currentTime.Month()
 	//currentYear := 2023
 	//currentMonth := 10
 	if currentMonth >= 9 {
