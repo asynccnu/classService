@@ -51,7 +51,8 @@ func (s *ClassServiceService) AddClass(ctx context.Context, req *pb.AddClassRequ
 		Day:      req.GetDay(),
 	}
 	if req.Credit != nil {
-		*preq.Credit = req.GetCredit()
+		var credit = req.GetCredit()
+		preq.Credit = &credit
 	}
 	resp, err := s.cp.AddClassInfoToClassListService(ctx, preq)
 	if err != nil {

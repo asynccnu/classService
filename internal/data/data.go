@@ -21,7 +21,7 @@ const mapping = `
         "type": "integer"
       },
       "teacher": {
-        "type": "text"
+        "type": "keyword"
       },
       "where": {
         "type": "text"
@@ -33,7 +33,7 @@ const mapping = `
         "type": "text"
       },
       "classname": {
-        "type": "text"
+        "type": "keyword"
       },
       "credit": {
         "type": "float"

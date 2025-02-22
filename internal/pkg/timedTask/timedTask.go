@@ -60,7 +60,8 @@ func (t Task) DeleteSchoolClassInfosFromES() {
 func (t Task) startAShortTask(task func()) error {
 
 	// 添加定时任务：每天凌晨 3 点执行
-	_, err := t.c.AddFunc("0 0 3 * * *", task)
+	_, err := t.c.AddFunc("0 3 * * *", task) // 每天凌晨 3 点执行
+
 	if err != nil {
 		clog.LogPrinter.Errorf("failed to add  short task")
 		return err
@@ -72,8 +73,8 @@ func (t Task) startAShortTask(task func()) error {
 }
 func (t Task) startLongTimeTask(task func()) error {
 
-	// 添加定时任务：每隔3个月的1号凌晨3点执行
-	_, err := t.c.AddFunc("0 0 3 */3 * *", task)
+	// 每隔3个月的1号凌晨3点执行（5字段格式）
+	_, err := t.c.AddFunc("0 3 1 */3 *", task)
 
 	if err != nil {
 		clog.LogPrinter.Errorf("failed to add long task")
