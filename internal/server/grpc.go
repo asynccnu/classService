@@ -6,6 +6,7 @@ import (
 	"github.com/asynccnu/classService/internal/metrics"
 	"github.com/asynccnu/classService/internal/service"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -22,6 +23,7 @@ func NewGRPCServer(c *conf.Server, greeter *service.ClassServiceService, logger 
 			metrics.QPSMiddleware(),
 			metrics.DelayMiddleware(),
 			logging.Server(logger),
+			ratelimit.Server(),
 		),
 	}
 	if c.Grpc.Network != "" {
