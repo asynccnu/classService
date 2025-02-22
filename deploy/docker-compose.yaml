@@ -15,7 +15,7 @@ services:
   classService:
     image: extra_class
     ports:
-      - "8000:8000"
-      - "9000:9000"
+      - "18000:18000"
+      - "19000:19000"
     volumes:
       - "../configs/config.yaml:/data/conf/config.yaml"
