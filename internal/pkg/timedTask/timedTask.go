@@ -33,8 +33,8 @@ func NewTask(a OptClassInfoToEs) *Task {
 // AddClassInfosToES 实现 Task 的 AddClassInfosToES 方法
 func (t Task) AddClassInfosToES() {
 	ctx := context.Background()
-
-	err := t.startAShortTask(func() {
+	// 每天凌晨 3 点执行
+	err := t.startTask("0 3 * * *", func() {
 		clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
 		xnm, xqm := tool.GetXnmAndXqm(time.Now())
 		t.a.AddClassInfosToES(ctx, xnm, xqm)
@@ -46,7 +46,8 @@ func (t Task) AddClassInfosToES() {
 func (t Task) DeleteSchoolClassInfosFromES() {
 	ctx := context.Background()
 
-	err := t.startLongTimeTask(func() {
+	// 每隔3个月的1号凌晨3点执行（5字段格式）
+	err := t.startTask("0 3 1 */3 *", func() {
 		clog.LogPrinter.Info("开始执行 DeleteSchoolClassInfosFromES 任务")
 		xnm, xqm := tool.GetXnmAndXqm(time.Now())
 		t.a.DeleteSchoolClassInfosFromES(ctx, xnm, xqm)
@@ -56,31 +57,15 @@ func (t Task) DeleteSchoolClassInfosFromES() {
 	}
 }
 
-// startAShortTask 用于启动定时任务
-func (t Task) startAShortTask(task func()) error {
-
-	// 添加定时任务：每天凌晨 3 点执行
-	_, err := t.c.AddFunc("0 3 * * *", task) // 每天凌晨 3 点执行
+// startTask 用于启动定时任务
+func (t Task) startTask(spec string, task func()) error {
+	_, err := t.c.AddFunc(spec, task)
 
 	if err != nil {
 		clog.LogPrinter.Errorf("failed to add  short task")
 		return err
 	}
 	//task()
-	// 启动定时任务调度器
-	t.c.Start()
-	return nil
-}
-func (t Task) startLongTimeTask(task func()) error {
-
-	// 每隔3个月的1号凌晨3点执行（5字段格式）
-	_, err := t.c.AddFunc("0 3 1 */3 *", task)
-
-	if err != nil {
-		clog.LogPrinter.Errorf("failed to add long task")
-		return err
-	}
-
 	// 启动定时任务调度器
 	t.c.Start()
 	return nil
