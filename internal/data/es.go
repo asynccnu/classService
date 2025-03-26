@@ -32,17 +32,27 @@ func NewEsClient(c *conf.Data) (*elastic.Client, error) {
 		panic(err)
 	}
 
-	// 如果索引不存在，创建索引
-	if !exist {
-		createIndex, err := cli.CreateIndex(indexName).BodyString(mapping).Do(ctx)
+	// 如果索引存在，先删除索引
+	if exist {
+		deleteIndex, err := cli.DeleteIndex(indexName).Do(ctx)
 		if err != nil {
-			panic(err)
+			panic(fmt.Sprintf("failed to delete existing index: %v", err))
 		}
-		if !createIndex.Acknowledged {
-			panic("create index failed")
+		if !deleteIndex.Acknowledged {
+			panic("delete index failed")
 		}
-		clog.LogPrinter.Info("Es create index successfully")
+		clog.LogPrinter.Info("Existing index deleted successfully")
 	}
+
+	// 创建新的索引
+	createIndex, err := cli.CreateIndex(indexName).BodyString(mapping).Do(ctx)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create index: %v", err))
+	}
+	if !createIndex.Acknowledged {
+		panic("create index failed")
+	}
+	clog.LogPrinter.Info("Es create index successfully")
 
 	return cli, nil
 }

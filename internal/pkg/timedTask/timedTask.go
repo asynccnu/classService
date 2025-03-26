@@ -33,6 +33,11 @@ func NewTask(a OptClassInfoToEs) *Task {
 // AddClassInfosToES 实现 Task 的 AddClassInfosToES 方法
 func (t Task) AddClassInfosToES() {
 	ctx := context.Background()
+	//程序开始时先执行一次
+	clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
+	xnm, xqm := tool.GetXnmAndXqm(time.Now())
+	t.a.AddClassInfosToES(ctx, xnm, xqm)
+
 	// 每天凌晨 3 点执行
 	err := t.startTask("0 3 * * *", func() {
 		clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")

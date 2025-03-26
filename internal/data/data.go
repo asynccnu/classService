@@ -10,8 +10,27 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-const mapping = `
-{
+const mapping = `{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "edge_ngram_analyzer": {
+          "tokenizer": "edge_ngram_tk",
+          "filter": ["lowercase"]
+        }
+      },
+      "tokenizer": {
+        "edge_ngram_tk": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 25,
+          "token_chars": ["letter", "digit"]
+        }
+      }
+    }
+  },
   "mappings": {
     "properties": {
       "id": {
@@ -21,7 +40,8 @@ const mapping = `
         "type": "integer"
       },
       "teacher": {
-        "type": "keyword"
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer"
       },
       "where": {
         "type": "text"
@@ -33,7 +53,11 @@ const mapping = `
         "type": "text"
       },
       "classname": {
-        "type": "keyword"
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
       },
       "credit": {
         "type": "float"
@@ -50,6 +74,7 @@ const mapping = `
     }
   }
 }`
+
 const indexName = "class_info"
 
 // ProviderSet is data providers.
@@ -114,8 +139,8 @@ func (d Data) SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm str
 		Query(
 			elastic.NewBoolQuery().
 				Should(
-					elastic.NewWildcardQuery("classname", "*"+keyWords+"*"), // 模糊匹配 classname
-					elastic.NewWildcardQuery("teacher", "*"+keyWords+"*"),   // 模糊匹配 teacher
+					elastic.NewMatchPhrasePrefixQuery("classname", keyWords).Boost(2),
+					elastic.NewMatchPhrasePrefixQuery("teacher", keyWords).Boost(1.5),
 				).
 				MinimumShouldMatch("1"). // 至少匹配一个条件
 				Filter(
