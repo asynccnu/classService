@@ -1,11 +1,18 @@
 package errcode
 
-import (
-	v1 "github.com/asynccnu/classService/api/classService/v1"
-	"github.com/go-kratos/kratos/v2/errors"
-)
+type Err struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+func (e *Err) Error() string {
+	return e.Msg
+}
+func New(code int, msg string) *Err {
+	return &Err{Code: code, Msg: msg}
+}
 
 var (
-	Err_EsAddClassInfo    = errors.New(450, v1.ErrorReason_ES_AddClassFailed.String(), "创建classInfo失败")
-	Err_EsSearchClassInfo = errors.New(451, v1.ErrorReason_ES_SearchClassFailed.String(), "查询classInfo失败")
+	Err_EsAddClassInfo    = New(450, "创建classInfo失败")
+	Err_EsSearchClassInfo = New(451, "查询classInfo失败")
 )

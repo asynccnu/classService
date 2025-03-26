@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	pb "github.com/asynccnu/be-api/gen/proto/classService/v1"
 	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
-	pb "github.com/asynccnu/classService/api/classService/v1"
 	"github.com/asynccnu/classService/internal/model"
 )
 
