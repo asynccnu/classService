@@ -8,8 +8,8 @@ import (
 )
 
 type EsProxy interface {
-	AddClassInfo(ctx context.Context, classInfo model.ClassInfo) error
-	RemoveClassInfo(ctx context.Context, xnm, xqm string)
+	AddClassInfo(ctx context.Context, classInfo ...model.ClassInfo) error
+	ClearClassInfo(ctx context.Context, xnm, xqm string)
 	SearchClassInfo(ctx context.Context, keyWords string, xnm, xqm string) ([]model.ClassInfo, error)
 }
 
@@ -49,11 +49,9 @@ func (c *ClassSerivceUserCase) AddClassInfosToES(ctx context.Context, xnm, xqm s
 			clog.LogPrinter.Errorf("failed to get all class")
 			return
 		}
-		for _, classInfo := range classInfos {
-			err1 := c.es.AddClassInfo(ctx, classInfo)
-			if err1 != nil {
-				clog.LogPrinter.Errorf("add class[%v] failed: %v", classInfo, err)
-			}
+		err1 := c.es.AddClassInfo(ctx, classInfos...)
+		if err1 != nil {
+			clog.LogPrinter.Errorf("add class[%v] failed: %v", classInfos, err)
 		}
 		clog.LogPrinter.Infof("es has save %d classes", len(classInfos))
 		reqTime = lastTime
@@ -61,5 +59,5 @@ func (c *ClassSerivceUserCase) AddClassInfosToES(ctx context.Context, xnm, xqm s
 }
 func (c *ClassSerivceUserCase) DeleteSchoolClassInfosFromES(ctx context.Context, xnm, xqm string) {
 	//xnm, xqm := tool.GetXnmAndXqm()
-	c.es.RemoveClassInfo(ctx, xnm, xqm)
+	c.es.ClearClassInfo(ctx, xnm, xqm)
 }

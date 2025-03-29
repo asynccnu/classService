@@ -6,6 +6,7 @@ import (
 	"github.com/asynccnu/classService/internal/pkg/timedTask"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/prometheus/client_golang/prometheus"
 	"os"
 
@@ -44,7 +45,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server, r *etcd.Registry) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server, r *etcd.Registry) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -53,6 +54,7 @@ func newApp(logger log.Logger, gs *grpc.Server, r *etcd.Registry) *kratos.App {
 		kratos.Logger(logger),
 		kratos.Server(
 			gs,
+			hs,
 		),
 		kratos.Registrar(r),
 	)
@@ -94,7 +96,7 @@ func main() {
 
 	// 启动定时任务
 	APP.task.AddClassInfosToES()
-	APP.task.DeleteSchoolClassInfosFromES()
+	APP.task.Clear()
 	// start and wait for stop signal
 	if err := APP.app.Run(); err != nil {
 		panic(err)

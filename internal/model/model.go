@@ -13,3 +13,14 @@ type ClassInfo struct {
 	Semester     string  `gorm:"column:semester;not null" json:"semester"`           //学期
 	Year         string  `gorm:"column:year;not null" json:"year"`                   //学年
 }
+
+type CTime struct {
+	Weeks    []int //有哪些周
+	Day      int   //在星期几
+	Sections []int //有哪几节
+}
+
+type CTWPair struct {
+	CT    CTime  // 上课时间
+	Where string // 上课地点
+}

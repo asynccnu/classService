@@ -26,11 +26,23 @@ func NewEsClient(c *conf.Data) (*elastic.Client, error) {
 
 	clog.LogPrinter.Info("connect to elasticsearch successfully")
 
+	createIndex(ctx, cli, c.Es.KeepDataAfterRestart, classIndexName, classMapping)
+	createIndex(ctx, cli, c.Es.KeepDataAfterRestart, freeClassroomIndex, freeClassroomMapping)
+
+	return cli, nil
+}
+
+func createIndex(ctx context.Context, cli *elastic.Client, keepData bool, indexName string, mapping string) {
 	// 检查索引是否存在
 	exist, err := cli.IndexExists(indexName).Do(ctx)
 	if err != nil {
 		panic(err)
 	}
+	//如果存在,并且要求保留数据,则返回
+	if exist && keepData {
+		return
+	}
+	//下面是不存在或者不保留数据
 
 	// 如果索引存在，先删除索引
 	if exist {
@@ -45,14 +57,12 @@ func NewEsClient(c *conf.Data) (*elastic.Client, error) {
 	}
 
 	// 创建新的索引
-	createIndex, err := cli.CreateIndex(indexName).BodyString(mapping).Do(ctx)
+	createIdx, err := cli.CreateIndex(indexName).BodyString(mapping).Do(ctx)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create index: %v", err))
 	}
-	if !createIndex.Acknowledged {
+	if !createIdx.Acknowledged {
 		panic("create index failed")
 	}
 	clog.LogPrinter.Info("Es create index successfully")
-
-	return cli, nil
 }

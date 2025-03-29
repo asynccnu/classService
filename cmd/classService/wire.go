@@ -27,10 +27,16 @@ func wireApp(*conf.Server, *conf.Data, *conf.Registry, log.Logger) (*APP, func()
 		registry.ProviderSet,
 		client.ProviderSet,
 		timedTask.ProviderSet,
-		wire.Bind(new(biz.EsProxy), new(*data.Data)),
+		wire.Bind(new(biz.EsProxy), new(*data.ClassData)),
 		wire.Bind(new(biz.ClassListService), new(*client.ClassListService)),
+		wire.Bind(new(biz.FreeClassRoomData), new(*data.FreeClassroomData)),
+		wire.Bind(new(biz.ClassData), new(*data.ClassData)),
+		wire.Bind(new(biz.CookieClient), new(*client.CookieSvc)),
+		wire.Bind(new(timedTask.ClassroomTask), new(*biz.FreeClassroomBiz)),
 		wire.Bind(new(timedTask.OptClassInfoToEs), new(*biz.ClassSerivceUserCase)),
 		wire.Bind(new(service.ClassInfoProxy), new(*biz.ClassSerivceUserCase)),
+		wire.Bind(new(service.FreeClassRoomSaver), new(*biz.FreeClassroomBiz)),
+		wire.Bind(new(service.FreeClassroomSearcher), new(*biz.FreeClassroomBiz)),
 		NewApp,
 		newApp))
 }

@@ -10,9 +10,7 @@ import (
 	"testing"
 )
 
-var cs *ClassSerivceUserCase
-
-func TestMain(m *testing.M) {
+func initCS() *ClassSerivceUserCase {
 	cli, err := data.NewEsClient(&conf.Data{Es: &conf.Data_ES{
 		Url:      "http://127.0.0.1:9200",
 		Setsniff: false,
@@ -22,7 +20,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(fmt.Sprintf("failed to create elasticsearch client: %v", err))
 	}
-	dt, _, _ := data.NewData(cli)
+	dt, _, _ := data.NewClassData(cli)
 	etcdRegistry := registry.NewRegistrarServer(&conf.Registry{
 		Etcd: &conf.Etcd{
 			Addr:     "127.0.0.1:2379",
@@ -30,16 +28,16 @@ func TestMain(m *testing.M) {
 			Password: "",
 		},
 	})
-	classerClient, err := client.NewClient(etcdRegistry)
+	classListService, err := client.NewClassListService(etcdRegistry)
 	if err != nil {
-		return
+		panic(err)
 	}
-	classListService := client.NewClassListService(classerClient)
 
-	cs = NewClassSerivceUserCase(dt, classListService)
-	m.Run()
+	cs := NewClassSerivceUserCase(dt, classListService)
+	return cs
 }
 
 func TestClassSerivceUserCase_AddClassInfosToES(t *testing.T) {
+	cs := initCS()
 	cs.AddClassInfosToES(context.Background(), "2024", "1")
 }

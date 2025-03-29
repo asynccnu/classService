@@ -5,26 +5,30 @@ import (
 	"fmt"
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/model"
+	"github.com/olivere/elastic/v7"
 	"testing"
 )
 
-var dt *Data
+var cli *elastic.Client
 
 func TestMain(m *testing.M) {
-	cli, err := NewEsClient(&conf.Data{Es: &conf.Data_ES{
-		Url:      "http://127.0.0.1:9200",
-		Setsniff: false,
-		Username: "elastic",
-		Password: "12345678",
+	var err error
+	cli, err = NewEsClient(&conf.Data{Es: &conf.Data_ES{
+		Url:                  "http://127.0.0.1:9200",
+		Setsniff:             false,
+		Username:             "elastic",
+		Password:             "12345678",
+		KeepDataAfterRestart: true,
 	}})
 	if err != nil {
 		panic(fmt.Sprintf("failed to create elasticsearch client: %v", err))
 	}
-	dt = &Data{cli: cli}
+
 	m.Run()
 }
 
 func TestData_AddClassInfo(t *testing.T) {
+	dt := &ClassData{cli: cli}
 	t.Run("add a class_info", func(t *testing.T) {
 		err := dt.AddClassInfo(context.Background(), model.ClassInfo{
 			ID:           "Class:haha:2024:1:1:1-2:cc:somewhere1:65535",
@@ -81,6 +85,7 @@ func TestData_AddClassInfo(t *testing.T) {
 }
 
 func TestData_RemoveClassInfo(t *testing.T) {
+	dt := &ClassData{cli: cli}
 	err := dt.AddClassInfo(context.Background(), model.ClassInfo{
 		ID:           "Class:haha:2023:1:1:1-2:cc:somewhere2:65535",
 		Day:          1,
@@ -97,10 +102,11 @@ func TestData_RemoveClassInfo(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	dt.RemoveClassInfo(context.Background(), "2023", "1")
+	dt.ClearClassInfo(context.Background(), "2023", "1")
 }
 
 func TestData_SearchClassInfo(t *testing.T) {
+	dt := &ClassData{cli: cli}
 	t.Run("search by teacher", func(t *testing.T) {
 		res, err := dt.SearchClassInfo(context.Background(), "cc", "2024", "1")
 		if err != nil {

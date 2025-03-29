@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
-	v1 "github.com/asynccnu/be-api/gen/proto/classlist/v1"
+	classlist "github.com/asynccnu/be-api/gen/proto/classlist/v1"
+	user "github.com/asynccnu/be-api/gen/proto/user/v1"
+	"github.com/asynccnu/classService/internal/errcode"
 	clog "github.com/asynccnu/classService/internal/log"
 	"github.com/asynccnu/classService/internal/model"
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
@@ -14,19 +16,13 @@ import (
 
 const CLASSLISTSERVICE = "discovery:///MuXi_ClassList"
 
-var ProviderSet = wire.NewSet(NewClassListService, NewClient)
+var ProviderSet = wire.NewSet(NewClassListService, NewCookieSvc)
 
 type ClassListService struct {
-	cs v1.ClasserClient
+	cs classlist.ClasserClient
 }
 
-func NewClassListService(cs v1.ClasserClient) *ClassListService {
-	return &ClassListService{
-		cs: cs,
-	}
-}
-
-func NewClient(r *etcd.Registry) (v1.ClasserClient, error) {
+func NewClassListService(r *etcd.Registry) (*ClassListService, error) {
 	conn, err := grpc.DialInsecure(
 		context.Background(),
 		grpc.WithEndpoint(CLASSLISTSERVICE), // 需要发现的服务，如果是k8s部署可以直接用服务器本地地址:9001，9001端口是需要调用的服务的端口
@@ -40,11 +36,12 @@ func NewClient(r *etcd.Registry) (v1.ClasserClient, error) {
 		clog.LogPrinter.Errorw("kind", "grpc-client", "reason", "GRPC_CLIENT_INIT_ERROR", "err", err)
 		return nil, err
 	}
-	return v1.NewClasserClient(conn), nil
+	cs := classlist.NewClasserClient(conn)
+	return &ClassListService{cs: cs}, nil
 }
 
 func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm, cursor string) ([]model.ClassInfo, string, error) {
-	resp, err := c.cs.GetAllClassInfo(ctx, &v1.GetAllClassInfoRequest{
+	resp, err := c.cs.GetAllClassInfo(ctx, &classlist.GetAllClassInfoRequest{
 		Year:     xnm,
 		Semester: xqm,
 		Cursor:   cursor,
@@ -73,7 +70,7 @@ func (c *ClassListService) GetAllSchoolClassInfos(ctx context.Context, xnm, xqm,
 	return classInfos, resp.LastTime, nil
 }
 
-func (c *ClassListService) AddClassInfoToClassListService(ctx context.Context, req *v1.AddClassRequest) (*v1.AddClassResponse, error) {
+func (c *ClassListService) AddClassInfoToClassListService(ctx context.Context, req *classlist.AddClassRequest) (*classlist.AddClassResponse, error) {
 	resp, err := c.cs.AddClass(ctx, req)
 	if err != nil {
 		clog.LogPrinter.Errorf("send request for service[%v] to add  classInfos[%v] failed: %v", CLASSLISTSERVICE, req, err)
@@ -81,4 +78,42 @@ func (c *ClassListService) AddClassInfoToClassListService(ctx context.Context, r
 	}
 	return resp, nil
 
+}
+
+type CookieSvc struct {
+	usc user.UserServiceClient
+}
+
+const (
+	USERSERVICE = "discovery:///user"
+)
+
+func NewCookieSvc(r *etcd.Registry) (*CookieSvc, error) {
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(USERSERVICE),
+		grpc.WithDiscovery(r),
+		grpc.WithMiddleware(
+			tracing.Client(),
+			recovery.Recovery(),
+		),
+	)
+	if err != nil {
+		clog.LogPrinter.Errorw("kind", "grpc-client", "reason", "GRPC_CLIENT_INIT_ERROR", "err", err)
+		return nil, err
+	}
+	usc := user.NewUserServiceClient(conn)
+	return &CookieSvc{usc: usc}, nil
+}
+
+func (c *CookieSvc) GetCookie(ctx context.Context, stuID string) (string, error) {
+
+	resp, err := c.usc.GetCookie(ctx, &user.GetCookieRequest{
+		StudentId: stuID,
+	})
+	if err != nil {
+		return "", errcode.ErrCCNULogin
+	}
+	cookie := resp.Cookie
+	return cookie, nil
 }

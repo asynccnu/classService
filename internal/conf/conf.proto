@@ -32,6 +32,7 @@ message Data {
     bool setsniff = 2;
     string username = 3;
     string password = 4;
+    bool keepDataAfterRestart = 5;//重启后是否保留数据
   }
   ES es = 1;
 }

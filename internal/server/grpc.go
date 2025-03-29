@@ -5,21 +5,18 @@ import (
 	"github.com/asynccnu/classService/internal/conf"
 	"github.com/asynccnu/classService/internal/metrics"
 	"github.com/asynccnu/classService/internal/service"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
-	"github.com/go-kratos/kratos/v2/middleware/validate"
-
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.ClassServiceService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, greeter *service.ClassServiceService, searcher *service.FreeClassroomSvc, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
-			validate.Validator(),
 			metrics.QPSMiddleware(),
 			metrics.DelayMiddleware(),
 			logging.Server(logger),
@@ -37,5 +34,6 @@ func NewGRPCServer(c *conf.Server, greeter *service.ClassServiceService, logger 
 	}
 	srv := grpc.NewServer(opts...)
 	v1.RegisterClassServiceServer(srv, greeter)
+	v1.RegisterFreeClassroomSvcServer(srv, searcher)
 	return srv
 }

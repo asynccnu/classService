@@ -17,16 +17,23 @@ type OptClassInfoToEs interface {
 	DeleteSchoolClassInfosFromES(ctx context.Context, xnm, xqm string)
 }
 
-// Task 定义 Task 结构体
-type Task struct {
-	a OptClassInfoToEs
-	c *cron.Cron
+type ClassroomTask interface {
+	ClearClassroomOccupancyFromES(ctx context.Context, year, semester string) error
+	SaveFreeClassRoomFromLocal(ctx context.Context, year, semester string) error
 }
 
-func NewTask(a OptClassInfoToEs) *Task {
+// Task 定义 Task 结构体
+type Task struct {
+	a  OptClassInfoToEs
+	cc ClassroomTask
+	c  *cron.Cron
+}
+
+func NewTask(a OptClassInfoToEs, cc ClassroomTask) *Task {
 	return &Task{
-		a: a,
-		c: cron.New(),
+		a:  a,
+		cc: cc,
+		c:  cron.New(),
 	}
 }
 
@@ -34,28 +41,42 @@ func NewTask(a OptClassInfoToEs) *Task {
 func (t Task) AddClassInfosToES() {
 	ctx := context.Background()
 	//程序开始时先执行一次
-	clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
-	xnm, xqm := tool.GetXnmAndXqm(time.Now())
-	t.a.AddClassInfosToES(ctx, xnm, xqm)
+	go func() {
+		xnm, xqm := tool.GetXnmAndXqm(time.Now())
+		clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
+		t.a.AddClassInfosToES(ctx, xnm, xqm)
+
+		clog.LogPrinter.Info("等待数据刷新")
+		//等待数据刷新
+		time.Sleep(5 * time.Second)
+
+		clog.LogPrinter.Info("开始执行 SaveFreeClassRoomFromLocal 任务")
+		_ = t.cc.SaveFreeClassRoomFromLocal(ctx, xnm, xqm)
+	}()
 
 	// 每天凌晨 3 点执行
 	err := t.startTask("0 3 * * *", func() {
-		clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
 		xnm, xqm := tool.GetXnmAndXqm(time.Now())
+		clog.LogPrinter.Info("开始执行 AddClassInfosToES 任务")
 		t.a.AddClassInfosToES(ctx, xnm, xqm)
+		clog.LogPrinter.Info("开始执行 SaveFreeClassRoomFromLocal 任务")
+		_ = t.cc.SaveFreeClassRoomFromLocal(ctx, xnm, xqm)
 	})
 	if err != nil {
 		panic(err)
 	}
 }
-func (t Task) DeleteSchoolClassInfosFromES() {
+
+// Clear 清洁任务
+func (t Task) Clear() {
 	ctx := context.Background()
 
-	// 每隔3个月的1号凌晨3点执行（5字段格式）
-	err := t.startTask("0 3 1 */3 *", func() {
-		clog.LogPrinter.Info("开始执行 DeleteSchoolClassInfosFromES 任务")
+	// 每天凌晨5点执行（5字段格式）
+	err := t.startTask("0 5 * * *", func() {
+		clog.LogPrinter.Info("开始执行 Clear 任务")
 		xnm, xqm := tool.GetXnmAndXqm(time.Now())
 		t.a.DeleteSchoolClassInfosFromES(ctx, xnm, xqm)
+		_ = t.cc.ClearClassroomOccupancyFromES(ctx, xnm, xqm)
 	})
 	if err != nil {
 		panic(err)
