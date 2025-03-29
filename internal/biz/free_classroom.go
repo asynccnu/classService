@@ -32,13 +32,27 @@ type FreeClassroomBiz struct {
 	classData         ClassData
 	freeClassRoomData FreeClassRoomData
 	cookieCli         CookieClient
+	httpCli           *http.Client
 }
 
 func NewFreeClassroomBiz(classData ClassData, data FreeClassRoomData, cookieCli CookieClient) *FreeClassroomBiz {
+	httpCli := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:        100,              // 最大空闲连接
+			IdleConnTimeout:     90 * time.Second, // 空闲连接超时
+			TLSHandshakeTimeout: 10 * time.Second, // TLS握手超时
+		},
+		Timeout: 30 * time.Second, // 总请求超时
+	}
+	httpCli.Transport = &http.Transport{
+		MaxIdleConnsPerHost: 20, // 每个主机最大空闲连接
+	}
+
 	return &FreeClassroomBiz{
 		classData:         classData,
 		freeClassRoomData: data,
 		cookieCli:         cookieCli,
+		httpCli:           httpCli,
 	}
 }
 
@@ -203,8 +217,6 @@ func (f *FreeClassroomBiz) crawFreeClassroom(ctx context.Context, year, semester
 		campus = 2
 	}
 
-	client := &http.Client{}
-
 	for _, section := range sections {
 		var data = strings.NewReader(fmt.Sprintf(`fwzt=cx&xqh_id=%d&xnm=%s&xqm=%s&cdlb_id=&cdejlb_id=&qszws=&jszws=&cdmc=%s&lh=&jyfs=0&cdjylx=&sfbhkc=&zcd=%d&xqj=%d&jcd=%d&_search=false&nd=%d&queryModel.showCount=1000&queryModel.currentPage=1&queryModel.sortName=cdbh+&queryModel.sortOrder=asc&time=1`,
 			campus, year, mp[semester], wherePrefix, 1<<(week-1), day, 1<<(section-1), time.Now().UnixMilli()))
@@ -213,22 +225,12 @@ func (f *FreeClassroomBiz) crawFreeClassroom(ctx context.Context, year, semester
 			clog.LogPrinter.Errorf("failed to create request: %v", err)
 			return nil, err
 		}
-		req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
-		req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9")
-		req.Header.Set("Connection", "keep-alive")
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-		req.Header.Set("Origin", "https://xk.ccnu.edu.cn")
-		req.Header.Set("Referer", "https://xk.ccnu.edu.cn/jwglxt/cdjy/cdjy_cxKxcdlb.html?gnmkdm=N2155&layout=default")
-		req.Header.Set("Sec-Fetch-Dest", "empty")
-		req.Header.Set("Sec-Fetch-Mode", "cors")
-		req.Header.Set("Sec-Fetch-Site", "same-origin")
-		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36")
-		req.Header.Set("X-Requested-With", "XMLHttpRequest")
-		req.Header.Set("sec-ch-ua", `"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"`)
-		req.Header.Set("sec-ch-ua-mobile", "?0")
-		req.Header.Set("sec-ch-ua-platform", `"Windows"`)
-		req.Header.Set("Cookie", cookie)
-		resp, err := client.Do(req)
+		req.Header = http.Header{
+			"Cookie":       []string{cookie},
+			"Content-Type": []string{"application/x-www-form-urlencoded;charset=UTF-8"},
+			"User-Agent":   []string{"Mozilla/5.0"}, // 精简UA
+		}
+		resp, err := f.httpCli.Do(req)
 		if err != nil {
 			clog.LogPrinter.Errorf("failed to send request: %v", err)
 			return nil, err
