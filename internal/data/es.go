@@ -34,9 +34,9 @@ func NewEsClient(c *conf.Data) (*elastic.Client, error) {
 	createIndex(ctx, cli, c.Es.KeepDataAfterRestart, classroomIndex, classroomMapping)
 
 	//存入classroom信息
-	err = createInitialClassrooms(cli, ClassroomsFile)
+	err = createInitialClassrooms(cli, c.Es.Classroom)
 	if err != nil {
-		clog.LogPrinter.Errorf("es: failed to create initial classrooms: %v", err)
+		clog.LogPrinter.Errorf("es: failed to create initial classrooms[path:%v]: %v", c.Es.Classroom, err)
 		return nil, err
 	}
 	return cli, nil
@@ -86,10 +86,6 @@ const (
 		}
 	}
 }`
-)
-
-const (
-	ClassroomsFile = "internal/data/classrooms.json"
 )
 
 func createInitialClassrooms(cli *elastic.Client, filePath string) error {
