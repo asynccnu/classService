@@ -16,7 +16,7 @@ import (
 type FreeClassRoomData interface {
 	AddClassroomOccupancy(ctx context.Context, year, semester string, cwtPairs ...model.CTWPair) error
 	ClearClassroomOccupancy(ctx context.Context, year, semester string) error
-	GetAllClassroom(ctx context.Context, year, semester, wherePrefix string) ([]string, error)
+	GetAllClassroom(ctx context.Context, wherePrefix string) ([]string, error)
 	QueryAvailableClassrooms(ctx context.Context, year, semester string, week, day, section int, wherePrefix string) (map[string]bool, error)
 }
 
@@ -130,7 +130,7 @@ func (f *FreeClassroomBiz) SearchAvailableClassroom(ctx context.Context, year, s
 	)
 
 	//先获取全部的教室
-	classroomSet, err := f.freeClassRoomData.GetAllClassroom(ctx, year, semester, wherePrefix)
+	classroomSet, err := f.freeClassRoomData.GetAllClassroom(ctx, wherePrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -271,11 +271,21 @@ func extractCdIDsWithFastjson(rawJSON []byte, prefix string) ([]string, error) {
 	var cdIDs []string
 	for _, item := range items.GetArray() {
 		cdID := item.GetStringBytes("cd_id")
-		if cdID != nil && strings.HasPrefix(string(cdID), prefix) {
+		if cdID != nil && strings.HasPrefix(string(cdID), prefix) && !containsSpecialChars(string(cdID)) && (len(string(cdID))-len(prefix)) == 3 {
 			cdIDs = append(cdIDs, string(cdID))
 		}
 	}
 	return cdIDs, nil
+}
+func containsSpecialChars(s string) bool {
+	for _, r := range s {
+		if !(r >= 'a' && r <= 'z') &&
+			!(r >= 'A' && r <= 'Z') &&
+			!(r >= '0' && r <= '9') {
+			return true
+		}
+	}
+	return false
 }
 
 //type JSONData struct {

@@ -132,7 +132,7 @@ func (d ClassData) AddClassInfo(ctx context.Context, classInfos ...model.ClassIn
 	// 检查是否有失败的请求
 	if bulkResponse.Errors {
 		for _, failed := range bulkResponse.Failed() {
-			clog.LogPrinter.Errorf("es: failed to index class_info[%s]: %s", failed.Id, failed.Error)
+			clog.LogPrinter.Errorf("es: failed to index class_info[%s]: %v", failed.Id, failed.Error)
 		}
 		return errcode.Err_EsAddClassInfo
 	}
